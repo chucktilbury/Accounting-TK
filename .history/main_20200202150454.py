@@ -1,10 +1,10 @@
 #!/usr/bin/python3
 
 from tkinter import ttk
-from tkinter import messagebox as mbox
+from tkinter import messagebox
 from tkinter import filedialog
-import tkinter as tk
 
+import tkinter
 import traceback, sys
 from utility import Logger, debugger, raise_event, register_event
 from database import Database
@@ -12,7 +12,7 @@ from dialogs import BaseDialog
 #from setup import Setup
 from importer import Importer
 
-class MainFrame(tk.Frame):
+class MainFrame(tkinter.Frame):
     '''
     This is the main frame that "contains" the other frames.
     '''
@@ -21,28 +21,28 @@ class MainFrame(tk.Frame):
         self.logger = Logger(self, Logger.DEBUG)
         self.logger.debug(sys._getframe().f_code.co_name)
 
-        self.master = tk.Tk()
+        self.master = tkinter.Tk()
         self.master.wm_title("Accounting")
 
         self.data = Database.get_instance()
 
-        tk.Frame.__init__(self, self.master)
+        tkinter.Frame.__init__(self, self.master)
         self.master.protocol("WM_DELETE_WINDOW", self.close_window_command)
 
-        frame = tk.Frame(self.master, bd=1, relief=tk.RIDGE)
+        frame = tkinter.Frame(self.master, bd=1, relief=tkinter.RIDGE)
         frame.grid(row=0, column=0, padx=4, pady=7)
 
-        tk.Label(frame, text="Accounting", font=("Helvetica", 14)).grid(row=0, column=0)
+        tkinter.Label(frame, text="Accounting", font=("Helvetica", 14)).grid(row=0, column=0)
 
         width = 24
-        tk.Button(frame, text="Sales", width=width, command=self.sales_button_command).grid(row=1, column=0)
-        tk.Button(frame, text="Purchase", width=width, command=self.purchase_button_command).grid(row=2, column=0)
-        tk.Button(frame, text="Import", width=width, command=self.import_button_command).grid(row=3, column=0)
-        tk.Button(frame, text="Reports", width=width, command=self.reports_button_command).grid(row=4, column=0)
-        tk.Button(frame, text="Queries", width=width, command=self.queries_button_command).grid(row=5, column=0)
-        tk.Button(frame, text="Setup", width=width, command=self.setup_button_command).grid(row=6, column=0)
+        tkinter.Button(frame, text="Sales", width=width, command=self.sales_button_command).grid(row=1, column=0)
+        tkinter.Button(frame, text="Purchase", width=width, command=self.purchase_button_command).grid(row=2, column=0)
+        tkinter.Button(frame, text="Import", width=width, command=self.import_button_command).grid(row=3, column=0)
+        tkinter.Button(frame, text="Reports", width=width, command=self.reports_button_command).grid(row=4, column=0)
+        tkinter.Button(frame, text="Queries", width=width, command=self.queries_button_command).grid(row=5, column=0)
+        tkinter.Button(frame, text="Setup", width=width, command=self.setup_button_command).grid(row=6, column=0)
 
-        tk.Button(self.master, text="Quit", width=width, command=self.close_window_command).grid(row=1, column=0)
+        tkinter.Button(self.master, text="Quit", width=width, command=self.close_window_command).grid(row=1, column=0)
 
 
     @debugger
@@ -73,7 +73,7 @@ class MainFrame(tk.Frame):
 
     @debugger
     def close_window_command(self):
-        if mbox.askokcancel("Quit", "Exit the accounting program?"):
+        if messagebox.askokcancel("Quit", "Exit the accounting program?"):
             self.logger.debug('main quit')
             self.master.quit()
         else:

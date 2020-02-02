@@ -1,6 +1,6 @@
 from tkinter import messagebox as mbox
 from tkinter import ttk
-import tkinter as tk
+import tkinter
 import math
 from utility import Logger, debugger
 from database import Database
@@ -32,7 +32,7 @@ Reset to default settings
 """
 
 # see: https://effbot.org/tkinterbook/tkinter-dialog-windows.htm
-class BaseDialog(tk.Toplevel):
+class BaseDialog(tkinter.Toplevel):
     '''
     This class provides common services to simple data dialogs.
     '''
@@ -43,7 +43,7 @@ class BaseDialog(tk.Toplevel):
         self.logger = Logger(self, level=Logger.DEBUG)
         self.logger.debug("Base Dialog start constructor")
 
-        tk.Toplevel.__init__(self, parent)
+        tkinter.Toplevel.__init__(self, parent)
         self.transient(parent)
 
         self.parent = parent
@@ -52,7 +52,7 @@ class BaseDialog(tk.Toplevel):
         # get a copy of the data_store for the children
         #self.data_store = DataStore.get_instance()
 
-        body = tk.Frame(self)
+        body = tkinter.Frame(self)
         self.initial_focus = self.body(body)
         body.grid(padx=5, pady=5)
 
@@ -80,12 +80,12 @@ class BaseDialog(tk.Toplevel):
     def buttonbox(self):
         # add standard button box. override if you don't want the
         # standard buttons
-        box = tk.Frame(self)
+        box = tkinter.Frame(self)
 
-        w = tk.Button(box, text="OK", width=10, command=self.ok, default=tk.ACTIVE)
-        w.pack(side=tk.LEFT, padx=5, pady=5)
-        w = tk.Button(box, text="Cancel", width=10, command=self.cancel)
-        w.pack(side=tk.LEFT, padx=5, pady=5)
+        w = tkinter.Button(box, text="OK", width=10, command=self.ok, default=tkinter.ACTIVE)
+        w.pack(side=tkinter.LEFT, padx=5, pady=5)
+        w = tkinter.Button(box, text="Cancel", width=10, command=self.cancel)
+        w.pack(side=tkinter.LEFT, padx=5, pady=5)
 
         box.grid()
 
@@ -125,14 +125,14 @@ class helpDialog:
         self.logger = Logger(self, level=Logger.DEBUG)
         self.logger.debug("enter constructer")
 
-        self.top = tk.Toplevel(parent)
-        self.tx = tk.Text(self.top, height=25, width=80)
-        self.sb = tk.Scrollbar(self.top)
-        self.sb.pack(side=tk.RIGHT,fill=tk.Y)
-        self.tx.pack(side=tk.LEFT)
+        self.top = tkinter.Toplevel(parent)
+        self.tx = tkinter.Text(self.top, height=25, width=80)
+        self.sb = tkinter.Scrollbar(self.top)
+        self.sb.pack(side=tkinter.RIGHT,fill=tkinter.Y)
+        self.tx.pack(side=tkinter.LEFT)
         self.sb.config(command=self.tx.yview)
         self.tx.config(yscrollcommand=self.sb.set)
-        self.tx.insert(tk.END, help_text)
+        self.tx.insert(tkinter.END, help_text)
         self.tx.config(state='disabled')
 
         self.logger.debug("leave constructer")
@@ -146,11 +146,11 @@ class TestDialog(BaseDialog):
     @debugger
     def body(self, master):
 
-        tk.Label(master, text="First:").grid(row=0)
-        tk.Label(master, text="Second:").grid(row=1)
+        tkinter.Label(master, text="First:").grid(row=0)
+        tkinter.Label(master, text="Second:").grid(row=1)
 
-        self.e1 = tk.Entry(master)
-        self.e2 = tk.Entry(master)
+        self.e1 = tkinter.Entry(master)
+        self.e2 = tkinter.Entry(master)
 
         self.e1.grid(row=0, column=1)
         self.e2.grid(row=1, column=1)
@@ -185,18 +185,18 @@ class NotesDialog(BaseDialog):
     @debugger
     def body(self, master):
         self.title('Notes')
-        self.tx = tk.Text(master, height=25, width=80)
-        self.sb = tk.Scrollbar(master)
-        self.sb.pack(side=tk.RIGHT,fill=tk.Y)
-        self.tx.pack(side=tk.LEFT)
+        self.tx = tkinter.Text(master, height=25, width=80)
+        self.sb = tkinter.Scrollbar(master)
+        self.sb.pack(side=tkinter.RIGHT,fill=tkinter.Y)
+        self.tx.pack(side=tkinter.LEFT)
         self.sb.config(command=self.tx.yview)
         self.tx.config(yscrollcommand=self.sb.set)
         #self.notes = self.data_store.get_notes()
-        self.tx.insert(tk.END, self.notes)
+        self.tx.insert(tkinter.END, self.notes)
 
     @debugger
     def validate(self):
-        self.notes = self.tx.get('1.0', tk.END)
+        self.notes = self.tx.get('1.0', tkinter.END)
         return True
 
     @debugger
@@ -233,9 +233,9 @@ class SelectItem(BaseDialog):
         padx = 6
         pady = 2
 
-        frame = tk.Frame(master, bd=1, relief=tk.RIDGE)
+        frame = tkinter.Frame(master, bd=1, relief=tkinter.RIDGE)
         frame.grid(row=0, column=0, padx=4, pady=7)
-        tk.Label(frame, text="Select %s"%(self.thing), font=("Helvetica", 14)).grid(row=0, column=0, columnspan=2)
+        tkinter.Label(frame, text="Select %s"%(self.thing), font=("Helvetica", 14)).grid(row=0, column=0, columnspan=2)
 
         ######################
         # Populate the combo boxes
@@ -244,7 +244,7 @@ class SelectItem(BaseDialog):
 
         ######################
         # Show the boxes
-        tk.Label(frame, text='Name:').grid(row=1, column=0)
+        tkinter.Label(frame, text='Name:').grid(row=1, column=0)
         self.cbb = ttk.Combobox(frame, values=lst)
         self.cbb.grid(row=1, column=1, padx=padx, pady=pady)
         self.cbb.current(0)
@@ -273,7 +273,7 @@ class SetupDialog(BaseDialog):
 
         self.table = table
         self.data = Database.get_instance()
-        self.name = tk.StringVar() #WARNING: This must be overridden by the child class
+        self.name = tkinter.StringVar() #WARNING: This must be overridden by the child class
 
         self.id_list = self.data.get_id_list(self.table)
         self.crnt_index = 1
@@ -353,10 +353,10 @@ class SetupDialog(BaseDialog):
 
     @debugger
     def buttonbox(self):
-        box = tk.Frame(self)
+        box = tkinter.Frame(self)
 
-        w = tk.Button(box, text="Done", width=10, command=self.cancel)
-        w.pack(side=tk.LEFT, padx=5, pady=5)
+        w = tkinter.Button(box, text="Done", width=10, command=self.cancel)
+        w.pack(side=tkinter.LEFT, padx=5, pady=5)
 
         box.grid()
 

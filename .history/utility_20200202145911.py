@@ -91,12 +91,12 @@ logger = Logger("Utility", Logger.INFO)
 '''
 The reason that the event handler exists is that the tkinter event
 handler does not have a mechanism to send events to anything but a widget
-and then there is no way to send the same event to multiple widgets.
+and then there is no way to send the same event to multiple widgits.
 
 The problem that this one solves is that there are a couple of controls in
 the main window that need to cause everything else in the window to update.
 One example of this is when the units are changed from inch to metric.
-Every widget that carries a measurement of some kind needs to be updated and
+Every widgit that carries a measurement of some kind needs to be updated and
 some of them are harder to change than others, so they all need their own
 method to do that.
 
@@ -111,7 +111,7 @@ If an event is raised with arguments, but the handler does not have the
 positional args, then an exception will be raised at runtime. Every
 handler is called with the same arguments from the call to raise_event()
 
-This is implemented as functions to make it unnecessary to pass around
+This is implemented as functions to make it unnessessary to pass around
 an event object to every class that will use it.
 '''
 
