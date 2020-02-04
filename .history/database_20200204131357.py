@@ -3,7 +3,7 @@ import time
 
 import sqlite3 as sql
 from tkinter import messagebox as mbox
-from utility import Logger, debugger
+from utility import Logger, debugger, register_event
 #import utility
 
 

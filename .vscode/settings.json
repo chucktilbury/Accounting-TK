@@ -2,12 +2,17 @@
     "cSpell.words": [
         "Helvetica",
         "askokcancel",
+        "crnt",
+        "kargs",
         "mbox",
         "padx",
         "pady",
         "qmks",
         "retv",
         "strftime",
-        "vals"
+        "vals",
+        "yscrollcommand",
+        "yscrollincrement",
+        "yview"
     ]
 }

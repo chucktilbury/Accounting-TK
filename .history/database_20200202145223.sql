@@ -71,8 +71,8 @@ CREATE TABLE InventoryItem
         description TEXT,
         notes TEXT,
         num_stock INTEGER NOT NULL,
-        retail REAL NOT NULL,
-        wholesale REAL NOT NULL);
+        price REAL NOT NULL,
+        cost REAL NOT NULL);
 
 ###############################################################################
 ### Accounting Module Database Structure
@@ -89,72 +89,57 @@ CREATE TABLE Account
 CREATE TABLE AccountTypes
         (ID INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL);
-# Static data: credit, debit
+# Static data: Revenue, Expense, Asset, Liability, Other
 
 ###############################################################################
 ### Account Transactions
 
+# Rows in this table are created for every transaction that transfers funds
+# from one account to another. These can be created manually or by automations
+# that import from CSV files. Every transaction that was created by importing
+# has the raw_transaction_ID set, pointing to a line in the raw import table.
+CREATE TABLE AcctTransaction
+        (ID INTEGER PRIMARY KEY AUTOINCREMENT,
+        amount REAL NOT NULL,
+        title TEXT NOT NULL,
+        description TEXT,
+        notes TEXT,
+        date TEXT NOT NULL,
+        raw_transaction_ID INTEGER,
+        contact_ID INTEGER,
+        transaction_type_ID INTEGER NOT NULL,
+        completed INTEGER NOT NULL);
+
+# This table describes a transaction type where funds are taken from one
+# account and placed in another account. The amount is taken from the
+# raw transaction ID and the raw source column.
 CREATE TABLE TransactionType
         (ID INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,
+        number INTEGER NOT NULL,
         description TEXT,
-        notes TEXT);
-# Initial data: transactions listed above
+        raw_source_col TEXT,
+        inc_account_ID INTEGER,
+        dec_account_ID INTEGER);
 
-# These rows are semi-static and are used to automate the movement of funds
-# from one account to another. These records tell the transaction instance
-# what to do.
-CREATE TABLE TransactionSequence
+# This table describes a transaction procedure. The procedure mat consist
+# of one or more steps and each step is defined by a specific transaction
+# type. This is the entry pint that is invoked in code in response to
+# importing lines into the raw transaction table.
+CREATE TABLE TransactionProc
         (ID INTEGER PRIMARY KEY AUTOINCREMENT,
-        transaction_type_ID INTEGER NOT NULL,
-        sequence_number INTEGER NOT NULL,
-        raw_import_column TEXT,
-        gross REAL NOT NULL,
-        to_account_ID INTEGER NOT NULL,
-        from_account_ID INTEGER NOT NULL);
-# Initial data: steps for transaction types listed above.
+        name TEXT NOT NULL,
+        description TEXT);
 
-# A line in this table is created for every movement of funds from one account to another.
-CREATE TABLE TransactionInstance
+# This table describes a numbered transaction step. The transaction steps
+# provide transaction types in a specific order for execution.
+CREATE TABLE TransactionStep
         (ID INTEGER PRIMARY KEY AUTOINCREMENT,
-        date TEXT NOT NULL,
+        name TEXT NOT NULL,
         description TEXT,
-        notes TEXT,
-        raw_import_ID INTEGER,
-        contact_ID INTEGER NOT NULL,
-        transaction_type_ID INTEGER NOT NULL,
-        transaction_seq_ID INTEGER NOT NULL);
-
-# This table is used when expenses or contacts are imported from PayPal. A
-# transaction instance is created when the expense is categorized.
-CREATE TABLE ImportRecord
-        (ID INTEGER PRIMARY KEY AUTOINCREMENT,
-        date TEXT NOT NULL,
-        contact_ID INTEGER,
-        gross REAL NOT NULL,
-        shipping REAL,
-        fee REAL,
-        tax REAL);
-
-#  This table is used to record the fact of a sale. When a sale is made, this
-# is created and then when the order is shipped, this is marked as such. This
-# is used to allow us to track orders that have not shipped yet.
-CREATE TABLE SaleRecord
-        (ID INTEGER PRIMARY KEY AUTOINCREMENT,
-        date TEXT NOT NULL,
-        contact_ID INTEGER NOT NULL,
-        status_ID INTEGER NOT NULL);
-
-# This table connects what was sold to the sale record, many to one.
-CREATE TABLE ProductList
-        (ID INTEGER PRIMARY KEY AUTOINCREMENT,
-        sale_record_ID INTEGER NOT NULL,
-        inventory_ID INTEGER NOT NULL);
-
-CREATE TABLE SaleStatus
-        (ID INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL);
-# Static data: active, paid, ready, shipped, complete, trouble, canceled
+        trans_proc_ID INTEGER NOT NULL,
+        trans_type_ID INTEGER NOT NULL,
+        step_number INTEGER NOT NULL);
 
 ###############################################################################
 ### Information Database Structure
@@ -218,3 +203,4 @@ CREATE TABLE RawImport
         BalanceImpact TEXT,
         Completed INTEGER);
 
+#CREATE UNIQUE INDEX idx_name ON TransactionType (Name);

@@ -94,67 +94,7 @@ CREATE TABLE AccountTypes
 ###############################################################################
 ### Account Transactions
 
-CREATE TABLE TransactionType
-        (ID INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL,
-        description TEXT,
-        notes TEXT);
-# Initial data: transactions listed above
 
-# These rows are semi-static and are used to automate the movement of funds
-# from one account to another. These records tell the transaction instance
-# what to do.
-CREATE TABLE TransactionSequence
-        (ID INTEGER PRIMARY KEY AUTOINCREMENT,
-        transaction_type_ID INTEGER NOT NULL,
-        sequence_number INTEGER NOT NULL,
-        raw_import_column TEXT,
-        gross REAL NOT NULL,
-        to_account_ID INTEGER NOT NULL,
-        from_account_ID INTEGER NOT NULL);
-# Initial data: steps for transaction types listed above.
-
-# A line in this table is created for every movement of funds from one account to another.
-CREATE TABLE TransactionInstance
-        (ID INTEGER PRIMARY KEY AUTOINCREMENT,
-        date TEXT NOT NULL,
-        description TEXT,
-        notes TEXT,
-        raw_import_ID INTEGER,
-        contact_ID INTEGER NOT NULL,
-        transaction_type_ID INTEGER NOT NULL,
-        transaction_seq_ID INTEGER NOT NULL);
-
-# This table is used when expenses or contacts are imported from PayPal. A
-# transaction instance is created when the expense is categorized.
-CREATE TABLE ImportRecord
-        (ID INTEGER PRIMARY KEY AUTOINCREMENT,
-        date TEXT NOT NULL,
-        contact_ID INTEGER,
-        gross REAL NOT NULL,
-        shipping REAL,
-        fee REAL,
-        tax REAL);
-
-#  This table is used to record the fact of a sale. When a sale is made, this
-# is created and then when the order is shipped, this is marked as such. This
-# is used to allow us to track orders that have not shipped yet.
-CREATE TABLE SaleRecord
-        (ID INTEGER PRIMARY KEY AUTOINCREMENT,
-        date TEXT NOT NULL,
-        contact_ID INTEGER NOT NULL,
-        status_ID INTEGER NOT NULL);
-
-# This table connects what was sold to the sale record, many to one.
-CREATE TABLE ProductList
-        (ID INTEGER PRIMARY KEY AUTOINCREMENT,
-        sale_record_ID INTEGER NOT NULL,
-        inventory_ID INTEGER NOT NULL);
-
-CREATE TABLE SaleStatus
-        (ID INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL);
-# Static data: active, paid, ready, shipped, complete, trouble, canceled
 
 ###############################################################################
 ### Information Database Structure
@@ -218,3 +158,4 @@ CREATE TABLE RawImport
         BalanceImpact TEXT,
         Completed INTEGER);
 
+#CREATE UNIQUE INDEX idx_name ON TransactionType (Name);

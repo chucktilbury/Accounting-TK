@@ -4,8 +4,7 @@ DEPS	=	main.py \
 			database.py \
 			importer.py \
 			utility.py \
-			notebk.py \
-			events.py
+			notebk.py
 
 all: $(TARGET)
 

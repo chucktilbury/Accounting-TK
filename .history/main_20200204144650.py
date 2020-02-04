@@ -27,18 +27,13 @@ class MainFrame(tk.Frame):
 
         self.data = Database.get_instance()
 
-        notebook = NoteBk(self.master, height=600, width=600)
+        notebook = NoteBk(self.master height=600, width=600)
         notebook.add_tab('Sales')
         notebook.add_tab('Purchase')
         notebook.add_tab('Import')
         notebook.add_tab('Reports')
         notebook.add_tab('Queries')
         notebook.add_tab('Setup')
-
-        # add window contents here
-
-        # activate a frame for initial display
-        notebook.show_frame('Sales')
 
     @debugger
     def main(self):

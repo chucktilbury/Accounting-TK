@@ -218,3 +218,4 @@ CREATE TABLE RawImport
         BalanceImpact TEXT,
         Completed INTEGER);
 
+#CREATE UNIQUE INDEX idx_name ON TransactionType (Name);

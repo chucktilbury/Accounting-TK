@@ -34,10 +34,6 @@ class MainFrame(tk.Frame):
         notebook.add_tab('Reports')
         notebook.add_tab('Queries')
         notebook.add_tab('Setup')
-
-        # add window contents here
-
-        # activate a frame for initial display
         notebook.show_frame('Sales')
 
     @debugger
