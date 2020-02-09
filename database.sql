@@ -7,7 +7,7 @@
 
 CREATE TABLE Contacts
         (ID INTEGER PRIMARY KEY AUTOINCREMENT,
-        date_created TEXT NOT NULL,
+        date_created TEXT,
         name TEXT NOT NULL,
         address1 TEXT,
         address2 TEXT,
@@ -25,7 +25,7 @@ CREATE TABLE Contacts
         type_ID INTEGER NOT NULL,
         status_ID INTEGER NOT NULL,
         class_ID INTEGER NOT NULL,
-        locked INTEGER NOT NULL);
+        locked_ID INTEGER NOT NULL);
 
 #CREATE UNIQUE INDEX idx_name ON Contacts (name);
 
@@ -60,6 +60,11 @@ CREATE TABLE ContactClass
         name TEXT NOT NULL);
 # Static data: retail, wholesale, gratis, other
 
+CREATE TABLE LockedState
+        (ID INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL);
+# Static data: yes, no
+
 ###############################################################################
 ### Inventory Database Structure
 
@@ -89,7 +94,7 @@ CREATE TABLE Account
 CREATE TABLE AccountTypes
         (ID INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL);
-# Static data: credit, debit
+# Static data: credit, debit, other
 
 ###############################################################################
 ### Account Transactions
@@ -106,10 +111,12 @@ CREATE TABLE TransactionType
 # what to do.
 CREATE TABLE TransactionSequence
         (ID INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        description TEXT,
+        notes TEXT,
         transaction_type_ID INTEGER NOT NULL,
         sequence_number INTEGER NOT NULL,
         raw_import_column TEXT,
-        gross REAL NOT NULL,
         to_account_ID INTEGER NOT NULL,
         from_account_ID INTEGER NOT NULL);
 # Initial data: steps for transaction types listed above.
@@ -121,6 +128,7 @@ CREATE TABLE TransactionInstance
         description TEXT,
         notes TEXT,
         raw_import_ID INTEGER,
+        gross REAL NOT NULL,
         contact_ID INTEGER NOT NULL,
         transaction_type_ID INTEGER NOT NULL,
         transaction_seq_ID INTEGER NOT NULL);
@@ -164,12 +172,6 @@ CREATE TABLE Business
         title TEXT NOT NULL,
         logo BLOB,
         slogan TEXT NOT NULL);
-
-###############################################################################
-### Table for any random thing that doesn't fit somewhere else.
-CREATE TABLE Config
-        (ID INTEGER PRIMARY KEY AUTOINCREMENT,
-        last_contact_ID INTEGER);
 
 ###############################################################################
 ### Raw import table
@@ -218,3 +220,12 @@ CREATE TABLE RawImport
         BalanceImpact TEXT,
         Completed INTEGER);
 
+CREATE TABLE RawImportNames
+        (ID INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL);
+
+###############################################################################
+### Table for any random thing that doesn't fit somewhere else.
+CREATE TABLE Config
+        (ID INTEGER PRIMARY KEY AUTOINCREMENT,
+        last_contact_ID INTEGER);

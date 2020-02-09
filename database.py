@@ -103,8 +103,19 @@ class Database(object):
         retv = {}
         cols = self.execute('PRAGMA table_info(%s);' % (table))
         for item in cols:
-            retv[item] = ''
+            retv[item[1]] = ''
         return cols
+
+    @debugger
+    def get_column_list(self, table):
+        '''
+        Return a dict where all column names are keys with blank data.
+        '''
+        retv = []
+        cols = self.execute('PRAGMA table_info(%s);' % (table))
+        for item in cols:
+            retv.append(item[1])
+        return retv
 
     @debugger
     def execute(self, sql):

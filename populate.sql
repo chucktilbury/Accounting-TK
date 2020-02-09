@@ -19,7 +19,7 @@ INSERT INTO Contacts (
         type_ID,
         status_ID,
         class_ID,
-        locked)
+        locked_ID)
     # Modify this to meet needs
     VALUES (
         '01/12/2020',
@@ -38,7 +38,7 @@ INSERT INTO Contacts (
         3,
         3,
         4,
-        True);
+        1);
 
 INSERT INTO Country
         (name, abbreviation)
@@ -69,6 +69,11 @@ INSERT INTO ContactClass
         (name)
     VALUES
         ('wholesale'), ('retail'), ('gratis'), ('other');
+
+INSERT INTO LockedState
+        (name)
+    VALUES
+        ('yes'), ('no');
 
 ###############################################################################
 #
@@ -276,6 +281,19 @@ INSERT INTO InventoryItem
     VALUES
         (10310, 'Delrin And Brass D', 'Delrin and brass soprano D whistle.', 0, 90.0, 85.0);
 
+##########################################
+INSERT INTO RawImportNames
+        (name)
+    VALUES
+        ('ID'),('Date'),('Time'),('TimeZone'),('Name'),('Type'),('Status'),
+        ('Currency'),('Gross'),('Fee'),('Net'),('FromEmail'),('ToEmail'),
+        ('TransactionID'),('ShippingAddress'),('AddressStatus'),('ItemTitle'),
+        ('ItemID'),('Shipping'),('InsuranceAmount'),('SalesTax'),('Option1Name'),
+        ('Option1Value'),('Option2Name'),('Option2Value'),('ReferenceTxnID'),
+        ('InvoiceNumber'),('CustomNumber'),('Quantity'),('ReceiptID'),('Balance'),
+        ('AddressLine1'),('AddressLine2'),('City'),('State'),('PostalCode'),
+        ('Country'),('Phone'),('Subject'),('Note'),('CountryCode'),
+        ('BalanceImpact'),('Completed');
 
 
 
