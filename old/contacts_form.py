@@ -229,7 +229,4 @@ class ContactsForm(SetupFormBase):
             self.del_button_command
         )
 
-        try:
-            self.set_form(self.crnt_index)
-        except IndexError:
-            self.logger.info('No records defined for table \'%s\''%(self.table))
+        self.set_form(self.crnt_index)

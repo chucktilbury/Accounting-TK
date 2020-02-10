@@ -157,7 +157,7 @@ class NoteBk(tk.Frame):
         self.uuid = uuid.uuid4().hex
 
         self.btn_frame.grid(row=0, column=0, sticky=tk.N)
-        self.wid_frame.grid(row=0, column=1)
+        self.wid_frame.grid(row=0, column=1)#, rowspan=40)
 
         self.frame_list = {}
         self.frame_index = 0
@@ -209,7 +209,7 @@ class NoteBk(tk.Frame):
         self.events.register_event('show_frame_%s'%(title), self.show_frame)
         panel_frame = {}
         btn = NoteBkBtn(self.btn_frame, title, self.uuid)
-        btn.grid(row=self.frame_index)
+        btn.grid(row=self.frame_index, sticky=(tk.E))
         panel_frame['btn'] = btn
         panel_frame['frame'] = ScrollableFrame(self.wid_frame, height=self.height, width=self.width)
         #panel_frame['frame'] = tk.Frame(self.wid_frame, height=self.height, width=self.width)

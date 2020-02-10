@@ -82,7 +82,7 @@ class ComboBox(tk.Frame):
         self.column = column
         self.data = Database.get_instance()
 
-        self.content = ttk.Combobox(self)
+        self.content = ttk.Combobox(self, state='readonly')
         self.content.grid(row=0, column=1, padx=5, pady=5, sticky=tk.W)
 
         self.logger.debug("ComboBox leave constructor")
@@ -98,7 +98,6 @@ class ComboBox(tk.Frame):
 
     @debugger
     def write(self, val):
-        print(self.content_list)
         self.content.current(int(val)-1)
 
     @debugger

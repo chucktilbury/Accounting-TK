@@ -96,7 +96,7 @@ class InventoryForm(SetupFormBase):
 
         row+=1
         col=0
-        buttons = ButtonBox(master, 'transactions_form')
+        buttons = ButtonBox(master, 'inventory_form')
         buttons.grid(row=row, column=col, columnspan=4)
         buttons.register_events(
             self.next_btn_command,
@@ -107,8 +107,5 @@ class InventoryForm(SetupFormBase):
             self.del_button_command,
         )
 
-        try:
-            self.set_form(self.crnt_index)
-        except IndexError:
-            self.logger.info('No records defined for table \'%s\''%(self.table))
+        self.set_form(self.crnt_index)
 

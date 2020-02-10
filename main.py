@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 from tkinter import ttk
-from tkinter import messagebox as mbox
+from tkinter import messagebox as mb
 from tkinter import filedialog
 import tkinter as tk
 
@@ -28,12 +28,26 @@ class MainFrame(tk.Frame):
 
         self.data = Database.get_instance()
 
+        menubar = tk.Menu(self.master, tearoff=0)
+        self.master.config(menu=menubar)
+
+        file_menu = tk.Menu(menubar, tearoff=0)
+        help_menu = tk.Menu(menubar, tearoff=0)
+        menubar.add_cascade(label='File', menu=file_menu)
+        menubar.add_cascade(label='Help', menu=help_menu)
+
+        file_menu.add_command(label='Import', command=self.do_import)
+        file_menu.add_command(label='Export', command=self.do_export)
+        file_menu.add_separator()
+        file_menu.add_command(label='Quit', command=self.do_quit)
+
+        help_menu.add_command(label='Help', command=self.do_help)
+        help_menu.add_command(label='About', command=self.do_about)
+
         notebook = NoteBk(self.master, height=700, width=1050)
         notebook.add_tab('Sales')
         notebook.add_tab('Purchase')
-        notebook.add_tab('Import')
         notebook.add_tab('Reports')
-        notebook.add_tab('Queries')
         notebook.add_tab('Setup')
 
         # add window contents here
@@ -55,89 +69,75 @@ class MainFrame(tk.Frame):
         except Exception:
             traceback.print_exception(*sys.exc_info())
 
-class Sales(BaseDialog):
+    @debugger
+    def do_import(self):
+        '''
+        Import from a CSV file
+        '''
 
     @debugger
-    def body(self, master):
-        self.title("Sales")
-
-class Purchase(BaseDialog):
-
-    @debugger
-    def body(self, master):
-        self.title("Purchase")
-
-class Import(BaseDialog):
+    def do_export(self):
+        '''
+        Export to a CSV file
+        '''
 
     @debugger
-    def body(self, master):
-        self.title("Import")
-
-class Queries(BaseDialog):
-
-    @debugger
-    def body(self, master):
-        self.title("Queries")
-
-class Reports(BaseDialog):
+    def do_quit(self):
+        '''
+        Quit with a prompt
+        '''
+        self.master.quit()
 
     @debugger
-    def body(self, master):
-        self.title("Reports")
+    def do_help(self):
+        '''
+        Show the help text dialog
+        '''
+        mb.showinfo('HELP!', 'Help me please.')
+
+    @debugger
+    def do_about(self):
+        '''
+        Show the About dialog
+        '''
+        mb.showinfo('About', 'Account according to Chuck!')
+
 
 if __name__ == "__main__":
     MainFrame().main()
 
 
-    #     tk.Frame.__init__(self, self.master)
-    #     self.master.protocol("WM_DELETE_WINDOW", self.close_window_command)
-
-    #     frame = tk.Frame(self.master, bd=1, relief=tk.RIDGE)
-    #     frame.grid(row=0, column=0, padx=4, pady=7)
-
-    #     tk.Label(frame, text="Accounting", font=("Helvetica", 14)).grid(row=0, column=0)
-
-    #     width = 24
-    #     tk.Button(frame, text="Sales", width=width, command=self.sales_button_command).grid(row=1, column=0)
-    #     tk.Button(frame, text="Purchase", width=width, command=self.purchase_button_command).grid(row=2, column=0)
-    #     tk.Button(frame, text="Import", width=width, command=self.import_button_command).grid(row=3, column=0)
-    #     tk.Button(frame, text="Reports", width=width, command=self.reports_button_command).grid(row=4, column=0)
-    #     tk.Button(frame, text="Queries", width=width, command=self.queries_button_command).grid(row=5, column=0)
-    #     tk.Button(frame, text="Setup", width=width, command=self.setup_button_command).grid(row=6, column=0)
-
-    #     tk.Button(self.master, text="Quit", width=width, command=self.close_window_command).grid(row=1, column=0)
 
 
-    # @debugger
-    # def sales_button_command(self):
-    #     Sales(self.master)
 
-    # @debugger
-    # def purchase_button_command(self):
-    #     Purchase(self.master)
 
-    # @debugger
-    # def import_button_command(self):
-    #     #Import(self.master)
-    #     imp = Importer()
-    #     imp.import_all()
+# class Sales(BaseDialog):
 
-    # @debugger
-    # def setup_button_command(self):
-    #     Setup(self.master)
+#     @debugger
+#     def body(self, master):
+#         self.title("Sales")
 
-    # @debugger
-    # def queries_button_command(self):
-    #     Queries(self.master)
+# class Purchase(BaseDialog):
 
-    # @debugger
-    # def reports_button_command(self):
-    #     Reports(self.master)
+#     @debugger
+#     def body(self, master):
+#         self.title("Purchase")
 
-    # @debugger
-    # def close_window_command(self):
-    #     if mbox.askokcancel("Quit", "Exit the accounting program?"):
-    #         self.logger.debug('main quit')
-    #         self.master.quit()
-    #     else:
-    #         self.logger.debug('do not quit')
+# class Import(BaseDialog):
+
+#     @debugger
+#     def body(self, master):
+#         self.title("Import")
+
+# class Queries(BaseDialog):
+
+#     @debugger
+#     def body(self, master):
+#         self.title("Queries")
+
+# class Reports(BaseDialog):
+
+#     @debugger
+#     def body(self, master):
+#         self.title("Reports")
+

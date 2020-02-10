@@ -138,7 +138,11 @@ class Database(object):
     @debugger
     def get_row_by_id(self, table, ID):
         curs = self.execute('select * from %s where ID = %d;'%(table, ID)).fetchall()
-        return dict(curs[0])
+        try:
+            retv = dict(curs[0])
+            return retv
+        except IndexError:
+            return None
 
     @debugger
     def get_id_by_row(self, table, col, val):

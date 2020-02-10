@@ -51,7 +51,7 @@ class TransactionTypeForm(SetupFormBase):
 
         row+=1
         col=0
-        tk.Label(master, text='Notes:').grid(row=6, column=0, sticky=(tk.E))
+        tk.Label(master, text='Notes:').grid(row=row, column=col, sticky=(tk.E))
         col+=1
         notes = NotesBox(master, self.table, 'notes')
         notes.grid(row=row, column=col, columnspan=3, sticky=(tk.W))
@@ -59,7 +59,7 @@ class TransactionTypeForm(SetupFormBase):
 
         row+=1
         col=0
-        buttons = ButtonBox(master, 'transactions_form')
+        buttons = ButtonBox(master, 'transaction_type_form')
         buttons.grid(row=row, column=col, columnspan=4)
         buttons.register_events(
             self.next_btn_command,
@@ -70,8 +70,5 @@ class TransactionTypeForm(SetupFormBase):
             self.del_button_command,
         )
 
-        try:
-            self.set_form(self.crnt_index)
-        except IndexError:
-            self.logger.info('No records defined for table \'%s\''%(self.table))
+        self.set_form(self.crnt_index)
 

@@ -71,8 +71,8 @@ class AccountsForm(SetupFormBase):
         col=0
         tk.Label(master, text='Description:').grid(row=row, column=col, sticky=(tk.E))
         col+=1
-        description = EntryBox(master, self.table, 'description')
-        description.grid(row=row, column=col, sticky=(tk.W))
+        description = EntryBox(master, self.table, 'description', width=50)
+        description.grid(row=row, column=col, sticky=(tk.W), columnspan=4)
         self.form_contents.append(description.get_line())
 
         row+=1
@@ -96,7 +96,4 @@ class AccountsForm(SetupFormBase):
             self.del_button_command,
         )
 
-        try:
-            self.set_form(self.crnt_index)
-        except IndexError:
-            self.logger.info('No records defined for table \'%s\''%(self.table))
+        self.set_form(self.crnt_index)
