@@ -23,6 +23,7 @@ class SetupFormBase(object):
 
     @debugger
     def select_button_command(self):
+        self.id_list = self.data.get_id_list(self.table)
         sel = SelectItem(self.master, self.table)
 
         #if not hasattr(sel, 'item_id'):

@@ -14,6 +14,13 @@ class Header(tk.Frame):
         super().__init__(master)
         tk.Label(self, text=name, font=("Helvetica", 14)).grid(row=0, column=0, sticky=(tk.E, tk.W))
 
+class FormButton(tk.Button):
+    '''
+    Implement the wrapper for buttons used in a setup form.
+    '''
+
+
+
 class EntryBox(tk.Frame):
     '''
     Implement a consistent interface to the entry widget
@@ -233,5 +240,34 @@ class ButtonBox(tk.Frame):
     def delete_btn(self):
         self.events.raise_event('delete_btn_%s'%(self.form))
 
+class SingleButtonBox(tk.Frame):
+    '''
+    Make the button box and register the events.
+    '''
+    def __init__(self, master, form, text=None, *args, **kargs):
+        '''
+        master = The frame to bind the widgets to.
+        form = Name of the form to bind the events to.
+        '''
+        self.logger = Logger(self, level=Logger.DEBUG)
+        self.logger.debug("NotesBox enter constructor")
+
+        super().__init__(master, *args, **kargs)
+
+        self.form = form
+        self.name = text.lower()
+        self.events = EventHandler.get_instance()
+        tk.Button(self, text=text, command=self.btn_callback).grid(row=1, column=2, padx=5, pady=5)
+
+    @debugger
+    def register_events(self, save):
+        '''
+        save = callback for the save button
+        '''
+        self.events.register_event('%s_btn_callback_%s'%(self.name, self.form), save)
+
+    @debugger
+    def btn_callback(self):
+        self.events.raise_event('%s_btn_callback_%s'%(self.name, self.form))
 
 

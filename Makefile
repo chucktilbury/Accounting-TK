@@ -2,10 +2,14 @@
 TARGET	=	accounting
 DEPS	=	main.py \
 			database.py \
+			dialogs.py \
 			importer.py \
 			utility.py \
 			notebk.py \
-			events.py
+			events.py \
+			form_widgets.py \
+			setup_form.py \
+			setup_notebook.py
 
 all: $(TARGET)
 

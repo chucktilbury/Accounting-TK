@@ -1,44 +1,10 @@
 ###############################################################################
 #
-# This file populates the database with default records.
+# This file populates the database with default records. ;
 #
-INSERT INTO Contacts (
-        date_created, # normally set by software
-        name,
-        address1,
-        state,
-        city,
-        zip,
-        email_address,
-        email_status_ID,
-        phone_number,
-        phone_status_ID,
-        web_site,
-        description,
-        country_ID,
-        type_ID,
-        status_ID,
-        class_ID,
-        locked_ID)
-    # Modify this to meet needs
-    VALUES (
-        '01/12/2020',
-        'Chuck Tilbury',
-        '10855 State Hwy 83',
-        'Oklahoma',
-        'Poteau',
-        '74953',
-        'chucktilbury@gmail.com',
-        1,
-        '512-84-8322',
-        1,
-        'http://whistlemaker.com',
-        'Owner of company',
-        1,
-        3,
-        3,
-        4,
-        1);
+
+###############################################################################
+# Static data types used in forms
 
 INSERT INTO Country
         (name, abbreviation)
@@ -55,25 +21,31 @@ INSERT INTO EmailStatus
     VALUES
         ('primary'), ('secondary'), ('inactive'), ('other');
 
-INSERT INTO ContactType
-        (name)
-    VALUES
-        ('customer'), ('vendor'), ('other');
-
-INSERT INTO ContactStatus
-        (name)
-    VALUES
-        ('active'), ('inactive'), ('other');
-
 INSERT INTO ContactClass
         (name)
     VALUES
         ('wholesale'), ('retail'), ('gratis'), ('other');
 
-INSERT INTO LockedState
+INSERT INTO ImportRecordType
         (name)
     VALUES
-        ('yes'), ('no');
+        ('credit'), ('debit');
+
+INSERT INTO SaleStatus
+        (name)
+    VALUES
+        ('active'), ('paid'), ('ready'), ('shipped'),
+        ('complete'), ('trouble'), ('canceled');
+
+INSERT INTO PurchaseStatus
+        (name)
+    VALUES
+        ('paid'), ('shipped'), ('backorder'), ('arrived'), ('other');
+
+INSERT INTO PurchaseStatus
+        (name)
+    VALUES
+        ('cogs'), ('other'), ('unknown');
 
 ###############################################################################
 #
@@ -81,9 +53,20 @@ INSERT INTO LockedState
 #
 
 INSERT INTO Business
-    (contact_ID, title, slogan)
-   VALUES
-    (1, 'Tilbury Woodwinds Company', 'Maker of fine musical instruments');
+        (title, name, address1, address2, state, city, zip, email_address,
+        phone_number, web_site, description, terms, returns, warranty,
+        country, slogan)
+    VALUES
+        ('Tilbury Woodwinds Company',
+        'Chuck Tilbury',
+        '10855 State Highway 83', '',
+        'Oklahoma', 'Poteau', '74953',
+        'info@whistlemaker.com',
+        '+1-512-840-8322',
+        'http://whistlemaker.com',
+        'Maker of fine musical instruments',
+        '', '', '', 'United States',
+        'Maker of fine musical instruments');
 
 ###############################################################################
 #

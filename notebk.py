@@ -17,29 +17,32 @@ class ScrollableFrame(ttk.Frame):
     mouse wheel.
     '''
 
-    def __init__(self, container, height=300, width=500, *args, **kwargs):
+    def __init__(self, container, height=300, width=500, scrolling=False, *args, **kwargs):
 
         self.logger = Logger(self, level=Logger.DEBUG)
         self.logger.debug("enter constructor")
         super().__init__(container, *args, **kwargs)
 
         self.canvas = tk.Canvas(self, height=height, width=width)
-        scrollbar = tk.Scrollbar(self, orient="vertical", command=self.canvas.yview)
         self.scrollwindow = tk.Frame(self.canvas)
 
         self.canvas.create_window((0, 0), window=self.scrollwindow, anchor="nw")
 
-        self.canvas.configure(yscrollcommand=scrollbar.set)
-        self.canvas.configure(yscrollincrement='20')
 
         self.canvas.pack(side="left", fill="both", expand=True)
-        scrollbar.pack(side="right", fill="y")
 
-        self.scrollwindow.bind("<Configure>", self.configure_window)
-        self.scrollwindow.bind("<Enter>", self.enter_handler)
-        self.scrollwindow.bind("<Leave>", self.leave_handler)
-        self.scrollwindow.bind('<Button-4>', self.mouse_wheel)
-        self.scrollwindow.bind('<Button-5>', self.mouse_wheel)
+        if scrolling:
+            scrollbar = tk.Scrollbar(self, orient="vertical", command=self.canvas.yview)
+            self.canvas.configure(yscrollcommand=scrollbar.set)
+            self.canvas.configure(yscrollincrement='20')
+            scrollbar.pack(side="right", fill="y")
+
+            self.scrollwindow.bind("<Configure>", self.configure_window)
+            self.scrollwindow.bind("<Enter>", self.enter_handler)
+            self.scrollwindow.bind("<Leave>", self.leave_handler)
+            self.scrollwindow.bind('<Button-4>', self.mouse_wheel)
+            self.scrollwindow.bind('<Button-5>', self.mouse_wheel)
+
         self.canvas.focus_set()
         self.logger.debug("leave constructor")
 
@@ -202,7 +205,7 @@ class NoteBk(tk.Frame):
         return self.frame_list[title]['frame']()
 
     @debugger
-    def add_tab(self, title, callback=None):
+    def add_tab(self, title, callback=None, scrolling=False):
         '''
         Add a new tab to the notebook.
         '''
@@ -211,7 +214,9 @@ class NoteBk(tk.Frame):
         btn = NoteBkBtn(self.btn_frame, title, self.uuid)
         btn.grid(row=self.frame_index, sticky=(tk.E))
         panel_frame['btn'] = btn
-        panel_frame['frame'] = ScrollableFrame(self.wid_frame, height=self.height, width=self.width)
+
+        panel_frame['frame'] = ScrollableFrame(self.wid_frame, height=self.height, width=self.width, scrolling=scrolling)
+
         #panel_frame['frame'] = tk.Frame(self.wid_frame, height=self.height, width=self.width)
         panel_frame['callback'] = callback
         panel_frame['index'] = self.frame_index

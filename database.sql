@@ -3,9 +3,44 @@
 # in the event that no database is found.
 
 ###############################################################################
-### Contact Database Structure
+### Information Database Structure
+CREATE TABLE Business
+        (ID INTEGER PRIMARY KEY AUTOINCREMENT,
+        title TEXT NOT NULL,
+        name TEXT NOT NULL,
+        address1 TEXT,
+        address2 TEXT,
+        state TEXT,
+        city TEXT,
+        zip TEXT,
+        email_address TEXT,
+        phone_number TEXT,
+        web_site TEXT,
+        description TEXT,
+        terms TEXT,
+        returns TEXT,
+        warranty TEXT,
+        country TEXT,
+        logo BLOB,
+        slogan TEXT);
 
-CREATE TABLE Contacts
+###############################################################################
+### Vendor Database Structure
+CREATE TABLE Vendor
+        (ID INTEGER PRIMARY KEY AUTOINCREMENT,
+        date_created TEXT,
+        name TEXT NOT NULL,
+        description TEXT,
+        notes TEXT,
+        email_address TEXT,
+        email_status_ID INTEGER,
+        phone_number TEXT,
+        phone_status_ID INTEGER,
+        web_site TEXT);
+
+###############################################################################
+### Customer Database Structure
+CREATE TABLE Customer
         (ID INTEGER PRIMARY KEY AUTOINCREMENT,
         date_created TEXT,
         name TEXT NOT NULL,
@@ -22,12 +57,7 @@ CREATE TABLE Contacts
         description TEXT,
         notes TEXT,
         country_ID INTEGER,
-        type_ID INTEGER NOT NULL,
-        status_ID INTEGER NOT NULL,
-        class_ID INTEGER NOT NULL,
-        locked_ID INTEGER NOT NULL);
-
-#CREATE UNIQUE INDEX idx_name ON Contacts (name);
+        class_ID INTEGER NOT NULL);
 
 CREATE TABLE Country
         (ID INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -45,25 +75,11 @@ CREATE TABLE EmailStatus
         name TEXT NOT NULL);
 # Static data: primary, secondary, inactive, other
 
-CREATE TABLE ContactStatus
-        (ID INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL);
-# Static data: active, inactive, other
-
-CREATE TABLE ContactType
-        (ID INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL);
-# Static data: customer, vendor, other
-
 CREATE TABLE ContactClass
         (ID INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL);
 # Static data: retail, wholesale, gratis, other
 
-CREATE TABLE LockedState
-        (ID INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL);
-# Static data: yes, no
 
 ###############################################################################
 ### Inventory Database Structure
@@ -139,10 +155,17 @@ CREATE TABLE ImportRecord
         (ID INTEGER PRIMARY KEY AUTOINCREMENT,
         date TEXT NOT NULL,
         contact_ID INTEGER,
+        transaction_id TEXT NOT NULL, # UUID from PayPal
         gross REAL NOT NULL,
         shipping REAL,
         fee REAL,
-        tax REAL);
+        tax REAL,
+        import_type_ID INTEGER NOT NULL);
+
+CREATE TABLE ImportRecordType
+        (ID INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL);
+# Static data 'credit', 'debit'
 
 #  This table is used to record the fact of a sale. When a sale is made, this
 # is created and then when the order is shipped, this is marked as such. This
@@ -150,7 +173,8 @@ CREATE TABLE ImportRecord
 CREATE TABLE SaleRecord
         (ID INTEGER PRIMARY KEY AUTOINCREMENT,
         date TEXT NOT NULL,
-        contact_ID INTEGER NOT NULL,
+        customer_ID INTEGER NOT NULL,
+        raw_import_ID INTEGER,
         status_ID INTEGER NOT NULL);
 
 # This table connects what was sold to the sale record, many to one.
@@ -164,14 +188,26 @@ CREATE TABLE SaleStatus
         name TEXT NOT NULL);
 # Static data: active, paid, ready, shipped, complete, trouble, canceled
 
-###############################################################################
-### Information Database Structure
-CREATE TABLE Business
+# This table is used to record the fact of a purchase. When a purchse is made,
+# a row is created and made ready to select whether it is a COGS expense or not.;
+CREATE TABLE PurchaseRecord
         (ID INTEGER PRIMARY KEY AUTOINCREMENT,
-        contact_ID INTEGER NOT NULL,
-        title TEXT NOT NULL,
-        logo BLOB,
-        slogan TEXT NOT NULL);
+        date TEXT NOT NULL,
+        raw_import_ID INTEGER,
+        vendor_ID INTEGER NOT NULL,
+        status_ID INTEGER NOT NULL,
+        type_ID INTEGER,
+        gross REAL NOT NULL);
+
+CREATE TABLE PurchaseType
+        (ID INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL);
+# Static data: cogs, other, unknown
+
+CREATE TABLE PurchaseStatus
+        (ID INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL);
+# Static data: paid, shipped, backorder, arrived, other
 
 ###############################################################################
 ### Raw import table
@@ -229,3 +265,12 @@ CREATE TABLE RawImportNames
 CREATE TABLE Config
         (ID INTEGER PRIMARY KEY AUTOINCREMENT,
         last_contact_ID INTEGER);
+
+###############################################################################
+### This table links paypal transaction IDs to customers or vendors
+CREATE TABLE TransactionID
+        (ID INTEGER PRIMARY KEY AUTOINCREMENT,
+        transaction_id TEXT NOT NULL,
+        customer_ID INTEGER, # One of these will be NULL
+        vendor_ID INTEGER);
+

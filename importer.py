@@ -65,12 +65,12 @@ class Importer(object):
 
         data = self.get_sales()
         self.import_country_codes(data)
-        self.import_customers(data)
+        self.import_customer_contacts(data)
         self.do_sales_transactions(data)
 
         data = self.get_purchases()
         self.import_country_codes(data)
-        self.import_vendors(data)
+        self.import_vendor_contacts(data)
         self.do_purchase_transactions(data)
 
     @debugger
@@ -128,7 +128,7 @@ class Importer(object):
         self.data.commit()
 
     @debugger
-    def import_customers(self, data):
+    def import_customer_contacts(self, data):
         ''' Store contact information for customers '''
         for item in data:
             if item['Type'] == 'Website Payment' or item['Type'] == 'General Payment':
@@ -142,16 +142,16 @@ class Importer(object):
                             'city': item['City'],
                             'zip': item['PostalCode'],
                             'email_address': item['FromEmail'],
-                            'email_status_ID': 1,
+                            'email_status_ID': self.data.get_id_by_row('EmailStatus', 'name', 'primary'),
                             'phone_number': item['Phone'],
-                            'phone_status_ID': 1,
+                            'phone_status_ID': self.data.get_id_by_row('PhoneStatus', 'name', 'primary'),
                             'description': 'Imported from PayPal',
                             'notes': item['Subject'],
                             'country_ID': self.data.get_id_by_row('Country', 'abbreviation', item['CountryCode']),
-                            'type_ID': 1,
-                            'status_ID': 1,
-                            'class_ID': 2,
-                            'locked': False}
+                            'type_ID': self.data.get_id_by_row('ContactType', 'name', 'customer'),
+                            'status_ID': self.data.get_id_by_row('ContactStatus', 'name', 'active'),
+                            'class_ID': self.data.get_id_by_row('ContactClass', 'name', 'retail'),
+                            'locked_ID': self.data.get_id_by_row('LockedState', 'name', 'no')}
 
                     self.data.insert_row('Contacts', rec)
         self.data.commit()
@@ -173,7 +173,7 @@ class Importer(object):
             return ''
 
     @debugger
-    def import_vendors(self, data):
+    def import_vendor_contacts(self, data):
         ''' Store contact information for vendors '''
         for item in data:
             if item['Name'] != '' and item['Name'] != 'PayPal':
@@ -186,16 +186,16 @@ class Importer(object):
                             'city': '',
                             'zip': '',
                             'email_address': self.validate_email(item['ToEmail']),
-                            'email_status_ID': 1,
+                            'email_status_ID': self.data.get_id_by_row('EmailStatus', 'name', 'primary'),
                             'phone_number': '',
-                            'phone_status_ID': 1,
+                            'phone_status_ID': self.data.get_id_by_row('PhoneStatus', 'name', 'primary'),
                             'description': item['ItemTitle'],
                             'notes': item['Subject'],
-                            'country_ID': 1,
-                            'type_ID': 2,
-                            'status_ID': 1,
-                            'class_ID': 2,
-                            'locked': False}
+                            'country_ID': 1, #self.data.get_id_by_row('Country', 'abbreviation', item['CountryCode']),
+                            'type_ID': self.data.get_id_by_row('ContactType', 'name', 'vendor'),
+                            'status_ID': self.data.get_id_by_row('ContactStatus', 'name', 'active'),
+                            'class_ID': self.data.get_id_by_row('ContactClass', 'name', 'retail'),
+                            'locked_ID':self.data.get_id_by_row('LockedState', 'name', 'no')}
                     self.data.insert_row('Contacts', rec)
         self.data.commit()
 
