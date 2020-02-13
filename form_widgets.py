@@ -14,13 +14,6 @@ class Header(tk.Frame):
         super().__init__(master)
         tk.Label(self, text=name, font=("Helvetica", 14)).grid(row=0, column=0, sticky=(tk.E, tk.W))
 
-class FormButton(tk.Button):
-    '''
-    Implement the wrapper for buttons used in a setup form.
-    '''
-
-
-
 class EntryBox(tk.Frame):
     '''
     Implement a consistent interface to the entry widget
@@ -34,7 +27,7 @@ class EntryBox(tk.Frame):
         lw = label width
         cw = control width
         '''
-        self.logger = Logger(self, level=Logger.DEBUG)
+        self.logger = Logger(self, level=Logger.INFO)
         self.logger.debug("EntryBox enter constructor")
 
         super().__init__(master, *args, **kargs)
@@ -80,7 +73,7 @@ class ComboBox(tk.Frame):
         lw = label width
         cw = control width
         '''
-        self.logger = Logger(self, level=Logger.DEBUG)
+        self.logger = Logger(self, level=Logger.INFO)
         self.logger.debug("ComboBox enter constructor")
 
         super().__init__(master, *args, **kargs)
@@ -136,7 +129,7 @@ class NotesBox(tk.Frame):
         cw = control width
         ch = control height
         '''
-        self.logger = Logger(self, level=Logger.DEBUG)
+        self.logger = Logger(self, level=Logger.INFO)
         self.logger.debug("NotesBox enter constructor")
 
         super().__init__(master, *args, **kargs)
@@ -185,15 +178,15 @@ class ButtonBox(tk.Frame):
         master = The frame to bind the widgets to.
         form = Name of the form to bind the events to.
         '''
-        self.logger = Logger(self, level=Logger.DEBUG)
+        self.logger = Logger(self, level=Logger.INFO)
         self.logger.debug("NotesBox enter constructor")
 
         super().__init__(master, *args, **kargs)
 
         self.form = form
         self.events = EventHandler.get_instance()
-        tk.Button(self, text='Next', command=self.next_btn).grid(row=0, column=1, padx=5, pady=5)
-        tk.Button(self, text='Prev', command=self.prev_btn).grid(row=0, column=2, padx=5, pady=5)
+        tk.Button(self, text='Next', command=self.next_btn).grid(row=0, column=2, padx=5, pady=5)
+        tk.Button(self, text='Prev', command=self.prev_btn).grid(row=0, column=1, padx=5, pady=5)
         tk.Button(self, text='Select', command=self.select_btn).grid(row=1, column=0, padx=5, pady=5)
         tk.Button(self, text='New', command=self.new_btn).grid(row=1, column=1, padx=5, pady=5)
         tk.Button(self, text='Save', command=self.save_btn).grid(row=1, column=2, padx=5, pady=5)
@@ -249,7 +242,7 @@ class SingleButtonBox(tk.Frame):
         master = The frame to bind the widgets to.
         form = Name of the form to bind the events to.
         '''
-        self.logger = Logger(self, level=Logger.DEBUG)
+        self.logger = Logger(self, level=Logger.INFO)
         self.logger.debug("NotesBox enter constructor")
 
         super().__init__(master, *args, **kargs)

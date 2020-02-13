@@ -9,7 +9,8 @@ DEPS	=	main.py \
 			events.py \
 			form_widgets.py \
 			setup_form.py \
-			setup_notebook.py
+			setup_notebook.py \
+			contact_form.py
 
 all: $(TARGET)
 

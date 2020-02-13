@@ -19,7 +19,7 @@ class ScrollableFrame(ttk.Frame):
 
     def __init__(self, container, height=300, width=500, scrolling=False, *args, **kwargs):
 
-        self.logger = Logger(self, level=Logger.DEBUG)
+        self.logger = Logger(self, level=Logger.INFO)
         self.logger.debug("enter constructor")
         super().__init__(container, *args, **kwargs)
 
@@ -205,7 +205,7 @@ class NoteBk(tk.Frame):
         return self.frame_list[title]['frame']()
 
     @debugger
-    def add_tab(self, title, callback=None, scrolling=False):
+    def add_tab(self, title, frame_class, scrolling=False, *args, **kargs):
         '''
         Add a new tab to the notebook.
         '''
@@ -215,11 +215,23 @@ class NoteBk(tk.Frame):
         btn.grid(row=self.frame_index, sticky=(tk.E))
         panel_frame['btn'] = btn
 
+        self.logger.debug("title: \'%s\'"%(title))
         panel_frame['frame'] = ScrollableFrame(self.wid_frame, height=self.height, width=self.width, scrolling=scrolling)
+        #obj = frame_class(panel_frame['frame'], *args, **kargs)
+        obj = frame_class(panel_frame['frame'].scrollwindow, *args, **kargs)
 
-        #panel_frame['frame'] = tk.Frame(self.wid_frame, height=self.height, width=self.width)
-        panel_frame['callback'] = callback
+        if 'notebook_callback' in dir(obj):
+            panel_frame['callback'] = obj.notebook_callback
+        else:
+            panel_frame['callback'] = None
         panel_frame['index'] = self.frame_index
         self.frame_list[title] = panel_frame
 
         self.frame_index += 1
+
+class DummyClass(object):
+    '''
+    This class allows adding a tab without specifying a frame_class.
+    '''
+    def __init__(self, master):
+        pass

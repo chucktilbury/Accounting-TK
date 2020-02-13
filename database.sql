@@ -30,6 +30,7 @@ CREATE TABLE Vendor
         (ID INTEGER PRIMARY KEY AUTOINCREMENT,
         date_created TEXT,
         name TEXT NOT NULL,
+        contact_name TEXT,
         description TEXT,
         notes TEXT,
         email_address TEXT,
@@ -254,10 +255,19 @@ CREATE TABLE RawImport
         Note TEXT,
         CountryCode TEXT,
         BalanceImpact TEXT,
-        Completed INTEGER);
+        imported_country BOOL,
+        imported_customer BOOL,
+        imported_vendor BOOL,
+        imported_sale BOOL,
+        imported_purchase BOOL);
 
 CREATE TABLE RawImportNames
         (ID INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL);
+
+CREATE TABLE ImportedFileNames
+        (ID INTEGER PRIMARY KEY AUTOINCREMENT,
+        date TEXT NOT NULL,
         name TEXT NOT NULL);
 
 ###############################################################################

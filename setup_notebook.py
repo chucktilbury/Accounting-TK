@@ -7,7 +7,7 @@ from database import  Database
 from setup_form import SetupFormBase
 from form_widgets import *
 from notebk import NoteBk
-from import_form import ImportForm
+from importer import Importer
 from contact_form import CustomerForm, VendorForm
 
 class SetupNotebook(object):
@@ -15,25 +15,63 @@ class SetupNotebook(object):
     def __init__(self, master):
 
         notebook = NoteBk(master, height=600, width=900)
-        notebook.add_tab('Business', scrolling=True)
-        notebook.add_tab('Customers')
-        notebook.add_tab('Vendors')
-        notebook.add_tab('Accounts')
-        notebook.add_tab('Inventory')
-        notebook.add_tab('Trans Types')
-        notebook.add_tab('Transactions')
-        notebook.add_tab('Import')
-
-        BusinessForm(notebook.get_frame('Business'))
-        CustomerForm(notebook.get_frame('Customers'))
-        VendorForm(notebook.get_frame('Vendors'))
-        AccountsForm(notebook.get_frame('Accounts'))
-        InventoryForm(notebook.get_frame('Inventory'))
-        TransactionTypeForm(notebook.get_frame('Trans Types'))
-        TransactionsForm(notebook.get_frame('Transactions'))
-        ImportForm(notebook.get_frame('Import'))
+        notebook.add_tab('Business', BusinessForm, scrolling=True)
+        notebook.add_tab('Customers', CustomerForm)
+        notebook.add_tab('Vendors', VendorForm)
+        notebook.add_tab('Accounts', AccountsForm)
+        notebook.add_tab('Inventory', InventoryForm)
+        notebook.add_tab('Trans Types', TransactionTypeForm)
+        notebook.add_tab('Transactions', TransactionsForm)
+        notebook.add_tab('Import', ImportFiles)
 
         notebook.show_frame('Business')
+
+class ImportFiles(SetupFormBase):
+    '''
+    Load one or more CSV files into the database from disk.
+    '''
+    def __init__(self, master, *args, **kargs):
+
+        super().__init__(master, 'RawImport', *args, **kargs)
+        self.form_contents = []
+        master.grid(padx=10, pady=10)
+        self.importer = Importer()
+
+        row = 0
+        col = 0
+
+        header = Header(master, "Import Files")
+        header.grid(row=row, column=col, columnspan=4)
+
+        row+=1
+        col=0
+        tk.Label(master, text='Import a CSV file for disk. All of the records').grid(row=row, column=col)
+        row+=1
+        tk.Label(master, text='are placed in the database, the customers, vendors,').grid(row=row, column=col)
+        row+=1
+        tk.Label(master, text='sales, and purchases are updated into the system.').grid(row=row, column=col)
+
+        row+=1
+        col=0
+        buttons = SingleButtonBox(master, 'import_file_form', 'Import')
+        buttons.grid(row=row, column=col, columnspan=4)
+        buttons.register_events(self.import_file)
+
+        self.row = row
+        #self.set_form()
+
+    def import_file(self):
+        '''
+        Bring a file into the database.
+        '''
+        num = self.importer.read_all()
+        self.importer.import_country_codes()
+        mb.showinfo('INFO', 'Imported %d lines from file.'%(num))
+        if num > 0:
+            self.importer.import_customer_contacts()
+            self.importer.import_vendor_contacts()
+            self.importer.do_purchase_transactions()
+            self.importer.do_sales_transactions()
 
 # CREATE TABLE Business
 #         (ID INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -159,8 +197,8 @@ class BusinessForm(SetupFormBase):
         col=0
         tk.Label(master, text='Web Site:').grid(row=row, column=col, sticky=(tk.E))
         col+=1
-        web_site = EntryBox(master, self.table, 'web_site')
-        web_site.grid(row=row, column=col, sticky=(tk.W))
+        web_site = EntryBox(master, self.table, 'web_site', width=width)
+        web_site.grid(row=row, column=col, sticky=(tk.W), columnspan=4)
         self.form_contents.append(web_site.get_line())
 
         row+=1
@@ -201,8 +239,10 @@ class BusinessForm(SetupFormBase):
         buttons.grid(row=row, column=col, columnspan=4)
         buttons.register_events(self.save_button_command)
 
-        self.set_form(self.crnt_index)
+        self.notebook_callback()
 
+    def notebook_callback(self):
+        self.set_form()
 
 # CREATE TABLE Account
 #         (ID INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -248,10 +288,9 @@ class AccountsForm(SetupFormBase):
         col=0
         tk.Label(master, text='Type:').grid(row=row, column=col, sticky=(tk.E))
         col+=1
-        account_type = ComboBox(master, self.table, 'type_ID')
-        account_type.populate('AccountTypes', 'name')
-        account_type.grid(row=row, column=col, sticky=(tk.W))
-        self.form_contents.append(account_type.get_line())
+        self.account_type = ComboBox(master, self.table, 'type_ID')
+        self.account_type.grid(row=row, column=col, sticky=(tk.W))
+        self.form_contents.append(self.account_type.get_line())
 
         row+=1
         col=0
@@ -290,7 +329,11 @@ class AccountsForm(SetupFormBase):
             self.del_button_command,
         )
 
-        self.set_form(self.crnt_index)
+        self.notebook_callback()
+
+    def notebook_callback(self):
+        self.account_type.populate('AccountTypes', 'name')
+        self.set_form()
 
 
 # CREATE TABLE InventoryItem
@@ -303,8 +346,6 @@ class AccountsForm(SetupFormBase):
 #         num_stock INTEGER NOT NULL,
 #         retail REAL NOT NULL,
 #         wholesale REAL NOT NULL);
-
-
 class InventoryForm(SetupFormBase):
     '''
     This is the main frame that "contains" the other frames.
@@ -392,7 +433,11 @@ class InventoryForm(SetupFormBase):
             self.del_button_command,
         )
 
-        self.set_form(self.crnt_index)
+        self.notebook_callback()
+        #self.set_form(self.crnt_index)
+
+    def notebook_callback(self):
+        self.set_form()
 
 # Note that the name of the transaction type maps to a function in code.
 # CREATE TABLE TransactionType
@@ -456,7 +501,11 @@ class TransactionTypeForm(SetupFormBase):
             self.del_button_command,
         )
 
-        self.set_form(self.crnt_index)
+        self.notebook_callback()
+        #self.set_form(self.crnt_index)
+
+    def notebook_callback(self):
+        self.set_form()
 
 # CREATE TABLE TransactionSequence
 #         (ID INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -506,39 +555,35 @@ class TransactionsForm(SetupFormBase):
         col=0
         tk.Label(master, text='Transaction Type:').grid(row=row, column=col, sticky=(tk.E))
         col+=1
-        transaction = ComboBox(master, self.table, 'transaction_type_ID')
-        transaction.populate('TransactionType', 'name')
-        transaction.grid(row=row, column=col, sticky=(tk.W))
-        self.form_contents.append(transaction.get_line())
+        self.transaction = ComboBox(master, self.table, 'transaction_type_ID')
+        self.transaction.grid(row=row, column=col, sticky=(tk.W))
+        self.form_contents.append(self.transaction.get_line())
 
         #row+=1
         #col=0
         col+=1
         tk.Label(master, text='Raw Import Column:').grid(row=row, column=col, sticky=(tk.E))
         col+=1
-        raw_column = ComboBox(master, self.table, 'raw_import_column')
-        raw_column.populate('RawImportNames', 'name')
-        raw_column.grid(row=row, column=col, sticky=(tk.W))
-        self.form_contents.append(raw_column.get_line())
+        self.raw_column = ComboBox(master, self.table, 'raw_import_column')
+        self.raw_column.grid(row=row, column=col, sticky=(tk.W))
+        self.form_contents.append(self.raw_column.get_line())
 
         row+=1
         col=0
         tk.Label(master, text="From Account:").grid(row=row, column=col, sticky=(tk.E))
         col+=1
-        from_account = ComboBox(master, self.table, 'from_account_ID')
-        from_account.populate('Account', 'name')
-        from_account.grid(row=row, column=col, sticky=(tk.W))
-        self.form_contents.append(from_account.get_line())
+        self.from_account = ComboBox(master, self.table, 'from_account_ID')
+        self.from_account.grid(row=row, column=col, sticky=(tk.W))
+        self.form_contents.append(self.from_account.get_line())
 
         #row+=1
         #col=0
         col+=1
         tk.Label(master, text="To Account:").grid(row=row, column=col, sticky=(tk.E))
         col+=1
-        to_account = ComboBox(master, self.table, 'to_account_ID')
-        to_account.populate('Account', 'name')
-        to_account.grid(row=row, column=col, sticky=(tk.W))
-        self.form_contents.append(to_account.get_line())
+        self.to_account = ComboBox(master, self.table, 'to_account_ID')
+        self.to_account.grid(row=row, column=col, sticky=(tk.W))
+        self.form_contents.append(self.to_account.get_line())
 
         row+=1
         col=0
@@ -569,5 +614,12 @@ class TransactionsForm(SetupFormBase):
             self.del_button_command,
         )
 
-        self.set_form(self.crnt_index)
+        self.notebook_callback()
+
+    def notebook_callback(self):
+        self.transaction.populate('TransactionType', 'name')
+        self.raw_column.populate('RawImportNames', 'name')
+        self.from_account.populate('Account', 'name')
+        self.to_account.populate('Account', 'name')
+        self.set_form()
 

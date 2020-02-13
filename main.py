@@ -11,7 +11,7 @@ from database import Database
 from dialogs import BaseDialog
 #from setup import Setup
 from importer import Importer
-from notebk import NoteBk
+from notebk import NoteBk, DummyClass
 from setup_notebook import SetupNotebook
 
 class MainFrame(tk.Frame):
@@ -45,16 +45,16 @@ class MainFrame(tk.Frame):
         # help_menu.add_command(label='About', command=self.do_about)
 
         notebook = NoteBk(self.master, height=700, width=1050)
-        notebook.add_tab('Sales')
-        notebook.add_tab('Purchase')
-        notebook.add_tab('Reports')
-        notebook.add_tab('Setup')
-
-        # add window contents here
-        SetupNotebook(notebook.get_frame('Setup'))
+        notebook.add_tab('Sales', DummyClass)
+        notebook.add_tab('Purchase', DummyClass)
+        notebook.add_tab('Reports', DummyClass)
+        notebook.add_tab('Setup', SetupNotebook)
 
         # activate a frame for initial display
         notebook.show_frame('Sales')
+
+    # def populate_controls(self):
+    #     self.setup.populate_controls()
 
     @debugger
     def main(self):
@@ -68,6 +68,7 @@ class MainFrame(tk.Frame):
 
         except Exception:
             traceback.print_exception(*sys.exc_info())
+
 
     # @debugger
     # def do_import(self):

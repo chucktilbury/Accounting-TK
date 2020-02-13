@@ -19,7 +19,7 @@ class SetupFormBase(object):
         self.data = Database.get_instance()
 
         self.id_list = self.data.get_id_list(self.table)
-        self.crnt_index = 1
+        self.crnt_index = 0
 
     @debugger
     def select_button_command(self):
@@ -65,7 +65,8 @@ class SetupFormBase(object):
             self.data.commit()
             self.id_list = self.data.get_id_list(self.table)
             self.crnt_index = 0
-            self.set_form(self.id_list[self.crnt_index])
+            #self.set_form(self.id_list[self.crnt_index])
+            self.set_form()
         else:
             self.logger.debug("Do not delete item from %s: \"%s\""%(self.name.read(), self.table))
 
@@ -76,7 +77,8 @@ class SetupFormBase(object):
         if self.crnt_index >= len(self.id_list):
             self.crnt_index = len(self.id_list)-1
 
-        self.set_form(self.id_list[self.crnt_index])
+        #self.set_form(self.id_list[self.crnt_index])
+        self.set_form()
 
     @debugger
     def prev_btn_command(self):
@@ -85,7 +87,8 @@ class SetupFormBase(object):
         if self.crnt_index < 0:
             self.crnt_index = 0
 
-        self.set_form(self.id_list[self.crnt_index])
+        #self.set_form(self.id_list[self.crnt_index])
+        self.set_form()
 
     @debugger
     def clear_form(self):
@@ -97,22 +100,26 @@ class SetupFormBase(object):
             item['self'].clear()
 
     @debugger
-    def set_form(self, row_id):
+    def set_form(self):#, row_id):
         '''
         Read the database and place the data in the form.
         '''
+        try:
+            self.id_list = self.data.get_id_list(self.table)
+            row_id = self.id_list[self.crnt_index]
+        except IndexError:
+            self.logger.info('No records defined for table \'%s\''%(self.table))
+            mb.showinfo('Records', 'There are no records available for this form: \'%s\".'%(self.table))
+            return
+
         row = self.data.get_row_by_id(self.table, row_id)
         if row is None:
             self.logger.info('No records defined for table \'%s\''%(self.table))
             mb.showinfo('Records', 'There are no records available for this table: \'%s\'.'%(self.table))
             return
 
-        try:
-            for item in self.form_contents:
-                item['self'].write(row[item['column']])
-        except IndexError:
-            self.logger.info('No records defined for table \'%s\''%(self.table))
-            mb.showinfo('Records', 'There are no records available for this form: \'%s\".'%(self.table))
+        for item in self.form_contents:
+            item['self'].write(row[item['column']])
 
     @debugger
     def get_form(self):
