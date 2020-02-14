@@ -176,7 +176,12 @@ CREATE TABLE SaleRecord
         date TEXT NOT NULL,
         customer_ID INTEGER NOT NULL,
         raw_import_ID INTEGER,
-        status_ID INTEGER NOT NULL);
+        status_ID INTEGER NOT NULL,
+        transaction_uuid TEXT NOT NULL,
+        gross REAL NOT NULL,
+        fees REAL NOT NULL,
+        shipping REAL NOT NULL,
+        committed BOOL);
 
 # This table connects what was sold to the sale record, many to one.
 CREATE TABLE ProductList
@@ -198,7 +203,11 @@ CREATE TABLE PurchaseRecord
         vendor_ID INTEGER NOT NULL,
         status_ID INTEGER NOT NULL,
         type_ID INTEGER,
-        gross REAL NOT NULL);
+        transaction_uuid TEXT NOT NULL,
+        gross REAL NOT NULL,
+        tax REAL,
+        shipping REAL,
+        committed BOOL);
 
 CREATE TABLE PurchaseType
         (ID INTEGER PRIMARY KEY AUTOINCREMENT,

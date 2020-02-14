@@ -35,7 +35,7 @@ class SetupFormBase(object):
             try:
                 self.logger.debug('Select dialog item selected = %d'%(sel.item_id))
                 self.crnt_index = self.id_list.index(sel.item_id)
-                self.set_form(self.id_list[self.crnt_index])
+                self.set_form()
             except TypeError:
                 mb.showerror('ERROR', 'No record was selected. (no records are available?)')
 

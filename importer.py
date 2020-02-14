@@ -184,8 +184,9 @@ class Importer(object):
                             'class_ID': self.data.get_id_by_row('ContactClass', 'name', 'retail')}
 
                     self.data.insert_row('Customer', rec)
+                    self.data.update_row_by_id('RawImport', {'imported_customer':True}, item['ID'])
                     count+=1
-            self.data.update_row_by_id('RawImport', {'imported_customer':True}, item['ID'])
+
         self.data.commit()
         mb.showinfo('INFO', 'Imported %d customer contacts.'%(count))
 
@@ -210,18 +211,71 @@ class Importer(object):
                             'phone_status_ID': self.data.get_id_by_row('PhoneStatus', 'name', 'primary'),
                             'description': item['ItemTitle'],
                             'notes': item['Subject']}
+
                     self.data.insert_row('Vendor', rec)
                     self.data.update_row_by_id('RawImport', {'imported_vendor':True}, item['ID'])
                     count+=1
+
         self.data.commit()
         mb.showinfo('INFO', 'Imported %d vendor contacts.'%(count))
 
     @debugger
-    def do_purchase_transactions(self, data):
+    def do_purchase_transactions(self):
         ''' Handle all of the transaction details for purchases '''
+        data = self.data.get_row_list('RawImport', 'imported_purchase = false and imported_vendor = true and BalanceImpact = \'Debit\'')
+        if data is None:
+            mb.showinfo('INFO', 'There are no purchase transcations to import.')
+            return
+
+        count = 0
+        for item in data:
+            if item['Name'] != '' and item['Name'] != 'PayPal':
+                gross = item['Gross']
+                tax = item['SalesTax']
+                shipping = item['Shipping']
+                rec = { 'date': item['Date'],
+                        'raw_import_ID': int(item['ID']),
+                        'vendor_ID': self.data.get_id_by_row('Vendor', 'name', item['Name']),
+                        'status_ID': self.data.get_id_by_row('PurchaseStatus', 'name', 'other'),
+                        'type_ID': self.data.get_id_by_row('PurchaseType', 'name', 'unknown'),
+                        'transaction_uuid': item['TransactionID'],
+                        'gross': self.data.convert_value(item['Gross'], float),
+                        'tax': self.data.convert_value(item['SalesTax'], float),
+                        'shipping': self.data.convert_value(item['Shipping'], float),
+                        'committed': False}
+
+                self.data.insert_row('PurchaseRecord', rec)
+                self.data.update_row_by_id('RawImport', {'imported_purchase':True}, item['ID'])
+                count+=1
+
+        self.data.commit()
+        mb.showinfo('INFO', 'Imported %d purchase transactions.'%(count))
 
     @debugger
-    def do_sales_transactions(self, data):
+    def do_sales_transactions(self):
         ''' Do all sales transactions '''
+        data = self.data.get_row_list('RawImport', 'imported_sale = false and imported_customer = true and BalanceImpact = \'Credit\'')
+        if data is None:
+            mb.showinfo('INFO', 'There are no sales transcations to import.')
+            return
 
+        count = 0
+        for item in data:
+            if item['Name'] != '' and item['Name'] != 'PayPal':
+                rec = { 'date': item['Date'],
+                        'customer_ID': self.data.get_id_by_row('Customer', 'name', item['Name']),
+                        'raw_import_ID': int(item['ID']),
+                        'status_ID': self.data.get_id_by_row('SaleStatus', 'name', 'active'),
+                        'transaction_uuid': item['TransactionID'],
+                        'gross': self.data.convert_value(item['Gross'], float),
+                        'fees': self.data.convert_value(item['Fee'], float),
+                        'shipping': self.data.convert_value(item['Shipping'], float),
+                        'committed': False}
+
+                self.data.insert_row('SaleRecord', rec)
+                count+=1
+                self.data.update_row_by_id('RawImport', {'imported_sale':True}, item['ID'])
+
+        self.data.commit()
+        mb.showinfo('INFO', 'Imported %d sale transactions.'%(count))
 

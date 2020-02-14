@@ -1,5 +1,5 @@
 import os
-import time
+import time, locale
 
 import sqlite3 as sql
 from tkinter import messagebox as mbox
@@ -40,7 +40,9 @@ class Database(object):
         self.db_create_file = 'database.sql'
         self.db_pop_file = 'populate.sql'
         self.open()
+        locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
         self.logger.debug("leave constructor")
+
 
     @debugger
     def open(self):
@@ -274,3 +276,40 @@ class Database(object):
 
         return True
 
+    @debugger
+    def convert_value(self, val, value_type, abs_val=True):
+
+        retv = None
+        self.logger.debug('val type: %s, value: %s, target type: %s'%(type(val), val, value_type))
+        #try:
+        if type(val) is value_type:
+            retv = val
+        elif value_type is str:
+            retv = str(val)
+        else:
+            if value_type is float:
+                if type(val) is str:
+                    if val == '':
+                        retv = 0.0
+                    else:
+                        if abs_val:
+                            retv = abs(locale.atof(val))
+                        else:
+                            retv = locale.atof(val)
+                else:
+                    if abs_val:
+                        retv = abs(locale.atof(val))
+                    else:
+                        retv = locale.atof(val)
+
+            elif value_type is int:
+                if abs_val:
+                    retv = int(abs(locale.atof(val)))
+                else:
+                    retv = int(locale.atof(val))
+        # except:
+        #     self.logger.error('Cannot convert value')
+        #     exit(1)
+
+        self.logger.debug('made it here: %s'%(str(retv)))
+        return retv
