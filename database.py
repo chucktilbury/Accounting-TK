@@ -164,10 +164,13 @@ class Database(object):
         return self.db.cursor()
 
     @debugger
-    def get_id_list(self, table):
+    def get_id_list(self, table, where=None):
         ''' Get a list of all of the IDs in the table '''
         retv = []
-        sql = 'SELECT ID FROM %s;'%(table)
+        if where is None:
+            sql = 'SELECT ID FROM %s;'%(table)
+        else:
+            sql = 'SELECT ID FROM %s WHERE %s;'%(table, where)
         cur = self.execute(sql)
         for item in cur:
             retv.append(item[0])

@@ -210,7 +210,8 @@ class Importer(object):
                             'phone_number': '',
                             'phone_status_ID': self.data.get_id_by_row('PhoneStatus', 'name', 'primary'),
                             'description': item['ItemTitle'],
-                            'notes': item['Subject']}
+                            'notes': item['Subject'],
+                            'type_ID': self.data.get_id_by_row('VendorType', 'name', 'unknown'),}
 
                     self.data.insert_row('Vendor', rec)
                     self.data.update_row_by_id('RawImport', {'imported_vendor':True}, item['ID'])
@@ -242,7 +243,8 @@ class Importer(object):
                         'gross': self.data.convert_value(item['Gross'], float),
                         'tax': self.data.convert_value(item['SalesTax'], float),
                         'shipping': self.data.convert_value(item['Shipping'], float),
-                        'committed': False}
+                        'notes': item['Subject'] + '\n' +item['ItemTitle'],
+                        'committed_ID': self.data.get_id_by_row('CommittedState', 'name', 'no')}
 
                 self.data.insert_row('PurchaseRecord', rec)
                 self.data.update_row_by_id('RawImport', {'imported_purchase':True}, item['ID'])
@@ -270,7 +272,8 @@ class Importer(object):
                         'gross': self.data.convert_value(item['Gross'], float),
                         'fees': self.data.convert_value(item['Fee'], float),
                         'shipping': self.data.convert_value(item['Shipping'], float),
-                        'committed': False}
+                        'notes': item['Subject'] + '\n' +item['ItemTitle'],
+                        'committed_ID': self.data.get_id_by_row('CommittedState', 'name', 'no')}
 
                 self.data.insert_row('SaleRecord', rec)
                 count+=1

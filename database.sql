@@ -37,7 +37,13 @@ CREATE TABLE Vendor
         email_status_ID INTEGER,
         phone_number TEXT,
         phone_status_ID INTEGER,
-        web_site TEXT);
+        web_site TEXT,
+        type_ID INTEGER NOT NULL);
+
+CREATE TABLE VendorType
+        (ID INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL);
+# Static data: cogs, non-cogs, unknown
 
 ###############################################################################
 ### Customer Database Structure
@@ -126,46 +132,46 @@ CREATE TABLE TransactionType
 # These rows are semi-static and are used to automate the movement of funds
 # from one account to another. These records tell the transaction instance
 # what to do.
-CREATE TABLE TransactionSequence
-        (ID INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL,
-        description TEXT,
-        notes TEXT,
-        transaction_type_ID INTEGER NOT NULL,
-        sequence_number INTEGER NOT NULL,
-        raw_import_column TEXT,
-        to_account_ID INTEGER NOT NULL,
-        from_account_ID INTEGER NOT NULL);
+#CREATE TABLE TransactionSequence
+#        (ID INTEGER PRIMARY KEY AUTOINCREMENT,
+#        name TEXT NOT NULL,
+#        description TEXT,
+#        notes TEXT,
+#        transaction_type_ID INTEGER NOT NULL,
+#        sequence_number INTEGER NOT NULL,
+#        raw_import_column TEXT,
+#        to_account_ID INTEGER NOT NULL,
+#        from_account_ID INTEGER NOT NULL);
 # Initial data: steps for transaction types listed above.
-
+#
 # A line in this table is created for every movement of funds from one account to another.
-CREATE TABLE TransactionInstance
-        (ID INTEGER PRIMARY KEY AUTOINCREMENT,
-        date TEXT NOT NULL,
-        description TEXT,
-        notes TEXT,
-        raw_import_ID INTEGER,
-        gross REAL NOT NULL,
-        contact_ID INTEGER NOT NULL,
-        transaction_type_ID INTEGER NOT NULL,
-        transaction_seq_ID INTEGER NOT NULL);
-
+#CREATE TABLE TransactionInstance
+#        (ID INTEGER PRIMARY KEY AUTOINCREMENT,
+#        date TEXT NOT NULL,
+#        description TEXT,
+#        notes TEXT,
+#        raw_import_ID INTEGER,
+#        gross REAL NOT NULL,
+#        contact_ID INTEGER NOT NULL,
+#        transaction_type_ID INTEGER NOT NULL,
+#        transaction_seq_ID INTEGER NOT NULL);
+#
 # This table is used when expenses or contacts are imported from PayPal. A
 # transaction instance is created when the expense is categorized.
-CREATE TABLE ImportRecord
-        (ID INTEGER PRIMARY KEY AUTOINCREMENT,
-        date TEXT NOT NULL,
-        contact_ID INTEGER,
-        transaction_id TEXT NOT NULL, # UUID from PayPal
-        gross REAL NOT NULL,
-        shipping REAL,
-        fee REAL,
-        tax REAL,
-        import_type_ID INTEGER NOT NULL);
-
-CREATE TABLE ImportRecordType
-        (ID INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL);
+#CREATE TABLE ImportRecord
+#        (ID INTEGER PRIMARY KEY AUTOINCREMENT,
+#        date TEXT NOT NULL,
+#        contact_ID INTEGER,
+#        transaction_id TEXT NOT NULL, # UUID from PayPal
+#        gross REAL NOT NULL,
+#        shipping REAL,
+#        fee REAL,
+#        tax REAL,
+#        import_type_ID INTEGER NOT NULL);
+#
+#CREATE TABLE ImportRecordType
+#        (ID INTEGER PRIMARY KEY AUTOINCREMENT,
+#        name TEXT NOT NULL);
 # Static data 'credit', 'debit'
 
 #  This table is used to record the fact of a sale. When a sale is made, this
@@ -181,13 +187,15 @@ CREATE TABLE SaleRecord
         gross REAL NOT NULL,
         fees REAL NOT NULL,
         shipping REAL NOT NULL,
-        committed BOOL);
+        notes TEXT,
+        committed_ID INTEGER NOT NULL);
 
 # This table connects what was sold to the sale record, many to one.
 CREATE TABLE ProductList
         (ID INTEGER PRIMARY KEY AUTOINCREMENT,
         sale_record_ID INTEGER NOT NULL,
-        inventory_ID INTEGER NOT NULL);
+        inventory_ID INTEGER NOT NULL,
+        quantity INTEGER NOT NULL);
 
 CREATE TABLE SaleStatus
         (ID INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -202,12 +210,13 @@ CREATE TABLE PurchaseRecord
         raw_import_ID INTEGER,
         vendor_ID INTEGER NOT NULL,
         status_ID INTEGER NOT NULL,
-        type_ID INTEGER,
+        type_ID INTEGER NOT NULL,
         transaction_uuid TEXT NOT NULL,
         gross REAL NOT NULL,
         tax REAL,
         shipping REAL,
-        committed BOOL);
+        notes TEXT,
+        committed_ID INTEGER NOT NULL);
 
 CREATE TABLE PurchaseType
         (ID INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -218,6 +227,11 @@ CREATE TABLE PurchaseStatus
         (ID INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL);
 # Static data: paid, shipped, backorder, arrived, other
+
+CREATE TABLE CommittedState
+        (ID INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL);
+# Static data: yes, no
 
 ###############################################################################
 ### Raw import table

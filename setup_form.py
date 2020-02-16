@@ -18,12 +18,21 @@ class SetupFormBase(object):
         self.table = table
         self.data = Database.get_instance()
 
-        self.id_list = self.data.get_id_list(self.table)
+        self.id_list = self.get_id_list()
         self.crnt_index = 0
 
     @debugger
+    def get_id_list(self):
+        '''
+        This method exists so that a form can manage a smaller set of
+        records than every single one. To do that, override this default
+        method in the form class.
+        '''
+        return self.data.get_id_list(self.table)
+
+    @debugger
     def select_button_command(self):
-        self.id_list = self.data.get_id_list(self.table)
+        self.id_list = self.get_id_list()
         sel = SelectItem(self.master, self.table)
 
         #if not hasattr(sel, 'item_id'):
@@ -47,28 +56,20 @@ class SetupFormBase(object):
     @debugger
     def save_button_command(self):
         ''' Save the form to the database '''
-        if not self.name.read() == '':
-            self.get_form()
-            self.id_list = self.data.get_id_list(self.table)
-        else:
-            mb.showerror('Error', 'Name of %s type must not be blank.'%(self.table))
+        self.get_form()
 
     @debugger
     def del_button_command(self):
         ''' Delete the item given in the form from the database '''
-        if self.name.read() == '':
-            return
-        val = mb.askokcancel("Sure?", "Are you sure you want to delete item \"%s\" from %s?"%(self.name.read(), self.table))
+        val = mb.askokcancel("Sure?", "Are you sure you want to delete item from %s?"%(self.table))
         if val:
-            self.logger.info("Deleting item: \"%s\""%(self.name.read()))
+            self.logger.info("Deleting item %d from %s"%(self.id_list[self.crnt_index], self.table))
             self.data.delete_row(self.table, self.id_list[self.crnt_index])
             self.data.commit()
-            self.id_list = self.data.get_id_list(self.table)
-            self.crnt_index = 0
-            #self.set_form(self.id_list[self.crnt_index])
+            self.id_list = self.get_id_list()
+            if self.crnt_index >= len(self.id_list):
+                self.crnt_index -= 1
             self.set_form()
-        else:
-            self.logger.debug("Do not delete item from %s: \"%s\""%(self.name.read(), self.table))
 
     @debugger
     def next_btn_command(self):
@@ -77,7 +78,6 @@ class SetupFormBase(object):
         if self.crnt_index >= len(self.id_list):
             self.crnt_index = len(self.id_list)-1
 
-        #self.set_form(self.id_list[self.crnt_index])
         self.set_form()
 
     @debugger
@@ -87,7 +87,6 @@ class SetupFormBase(object):
         if self.crnt_index < 0:
             self.crnt_index = 0
 
-        #self.set_form(self.id_list[self.crnt_index])
         self.set_form()
 
     @debugger
@@ -98,6 +97,7 @@ class SetupFormBase(object):
         for item in self.form_contents:
             print(item)
             item['self'].clear()
+        self.id_list = None
 
     @debugger
     def set_form(self):#, row_id):
@@ -105,7 +105,7 @@ class SetupFormBase(object):
         Read the database and place the data in the form.
         '''
         try:
-            self.id_list = self.data.get_id_list(self.table)
+            self.id_list = self.get_id_list()
             row_id = self.id_list[self.crnt_index]
         except IndexError:
             self.logger.info('No records defined for table \'%s\''%(self.table))
@@ -118,30 +118,35 @@ class SetupFormBase(object):
             mb.showinfo('Records', 'There are no records available for this table: \'%s\'.'%(self.table))
             return
 
+        print(self.form_contents)
         for item in self.form_contents:
-            item['self'].write(row[item['column']])
+            if not item['hasid'] is None:
+                # swap in the value that the ID points to rather than the actual ID
+                item['hasid']['id'] = int(row[item['column']])
+                tmp_row = self.data.get_row_by_id(item['hasid']['table'], item['hasid']['id'])
+                item['self'].write(tmp_row[item['hasid']['column']])
+            else:
+                item['self'].write(row[item['column']])
 
     @debugger
     def get_form(self):
         '''
-        Read the form and place the data in the database. Note that this
-        function requires a unique name column to function.
+        Read the form and place the data in the database.
         '''
         row = {}
-        ctrl = None
-
         for item in self.form_contents:
-            row[item['column']] = item['self'].read()
-            if item['column'] == 'name':
-                ctrl = item['self']
-
-        if not ctrl is None:
-            if self.data.if_rec_exists(self.table, 'name', ctrl.read()):
-                id = self.data.get_id_by_name(self.table, ctrl.read())
-                self.data.update_row_by_id(self.table, row, id)
+            if not item['hasid'] is None:
+                # If in the future, forms that require a writable ID in the
+                # form is implemented, then this line will have to change.
+                row[item['column']] = item['hasid']['id']
             else:
-                self.data.insert_row(self.table, row)
+                row[item['column']] = item['self'].read()
 
-            self.data.commit()
+        if self.id_list is None:
+            self.data.insert_row(self.table, row)
         else:
-            mb.showerror('ERROR', 'Cannot save a table that does not have a unique name to key off of.')
+            row_id = self.id_list[self.crnt_index]
+            self.data.update_row_by_id(self.table, row, row_id)
+
+        self.id_list = self.get_id_list()
+

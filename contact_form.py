@@ -171,7 +171,7 @@ class CustomerForm(SetupFormBase):
         col=0
         tk.Label(master, text='Notes:').grid(row=row, column=0, sticky=(tk.E))
         col+=1
-        notes = NotesBox(master, self.table, 'notes')
+        notes = NotesBox(master, self.table, 'notes', height=15)
         notes.grid(row=row, column=col, columnspan=3, sticky=(tk.W))
         self.form_contents.append(notes.get_line())
 
@@ -212,6 +212,26 @@ class CustomerForm(SetupFormBase):
     def import_customers(self):
         self.importer.import_customer_contacts()
 
+    @debugger
+    def del_button_command(self):
+        '''
+        Delete the item given in the form from the database
+
+        This is an override to the parent class.
+        TODO
+        Check to see if there are any references to the customer in the
+        SalesRecods table and if there are, prompt to delete those as
+        well. If the user opts to not delete the sales records, then
+        deleting this contact will fail as well.
+        '''
+        val = mb.askokcancel("Sure?", "Are you sure you want to delete item from %s?"%(self.table))
+        if val:
+            self.logger.info("Deleting item %d from %s"%(self.id_list[self.crnt_index], self.table))
+            self.data.delete_row(self.table, self.id_list[self.crnt_index])
+            self.data.commit()
+            self.id_list = self.data.get_id_list(self.table)
+            self.crnt_index = 0
+            self.set_form()
 
 # CREATE TABLE Vendor
 #         (ID INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -309,6 +329,15 @@ class VendorForm(SetupFormBase):
         web_site.grid(row=row, column=col, sticky=(tk.W), columnspan=4)
         self.form_contents.append(web_site.get_line())
 
+        #row+=1
+        #col=0
+        col+=1
+        tk.Label(master, text='Vendor Type:').grid(row=row, column=col, sticky=(tk.E))
+        col+=1
+        self.type_ID = ComboBox(master, self.table, 'type_ID')
+        self.type_ID.grid(row=row, column=col, sticky=(tk.W))
+        self.form_contents.append(self.type_ID.get_line())
+
         row+=1
         col=0
         tk.Label(master, text='Notes:').grid(row=row, column=0, sticky=(tk.E))
@@ -346,9 +375,31 @@ class VendorForm(SetupFormBase):
     @debugger
     def notebook_callback(self):
         self.email_status_ID.populate('EmailStatus', 'name')
+        self.type_ID.populate('VendorType', 'name')
         self.phone_status_ID.populate('PhoneStatus', 'name')
         self.set_form()
 
     @debugger
     def import_vendors(self):
         self.importer.import_vendor_contacts()
+
+    @debugger
+    def del_button_command(self):
+        '''
+        Delete the item given in the form from the database
+
+        This is an override to the parent class.
+        TODO
+        Check to see if there are any references to the vendor in the
+        PurchaseRecods table and if there are, prompt to delete those
+        as well. If the user opts to not delete the purchase records,
+        then deleting this contact will fail as well.
+        '''
+        val = mb.askokcancel("Sure?", "Are you sure you want to delete item from %s?"%(self.table))
+        if val:
+            self.logger.info("Deleting item %d from %s"%(self.id_list[self.crnt_index], self.table))
+            self.data.delete_row(self.table, self.id_list[self.crnt_index])
+            self.data.commit()
+            self.id_list = self.data.get_id_list(self.table)
+            self.crnt_index = 0
+            self.set_form()

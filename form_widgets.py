@@ -14,11 +14,12 @@ class Header(tk.Frame):
         super().__init__(master)
         tk.Label(self, text=name, font=("Helvetica", 14)).grid(row=0, column=0, sticky=(tk.E, tk.W))
 
-class EntryBox(tk.Frame):
+
+class LabelBox(tk.Frame):
     '''
     Implement a consistent interface to the entry widget
     '''
-    def __init__(self, master, table, column, width=None, *args, **kargs):
+    def __init__(self, master, table, column, *args, **kargs):
         '''
         master = the frame to bind this frame to
         name   = the text of the label
@@ -28,17 +29,26 @@ class EntryBox(tk.Frame):
         cw = control width
         '''
         self.logger = Logger(self, level=Logger.INFO)
-        self.logger.debug("EntryBox enter constructor")
+        self.logger.debug("LabelBox enter constructor")
 
         super().__init__(master, *args, **kargs)
 
         self.table = table
         self.column = column
         self.content = tk.StringVar(master)
-        entry = tk.Entry(self, textvariable=self.content, width=width)
-        entry.grid(row=0, column=1, padx=5, pady=5, sticky=tk.W)
+        self.entry = tk.Label(self, textvariable=self.content)
+        self.entry.grid(row=0, column=1, padx=5, pady=5, sticky=tk.W)
 
-        self.logger.debug("EntryBox leave constructor")
+        self.row = {'table': self.table, 'column':self.column, 'self':self, 'hasid':None}
+        self.logger.debug("LabelBox leave constructor")
+
+    @debugger
+    def set_id(self, table, column, id=0):
+        '''
+        When the column has a ID, rather than a value, use this to get the record
+        that the ID references.
+        '''
+        self.row['hasid'] = {'table':table, 'column':column, 'id':id}
 
     @debugger
     def read(self):
@@ -57,7 +67,68 @@ class EntryBox(tk.Frame):
         '''
         Return the form entry to update the form.
         '''
-        return {'table': self.table, 'column':self.column, 'self':self}
+        return self.row
+
+class EntryBox(tk.Frame):
+    '''
+    Implement a consistent interface to the entry widget
+    '''
+    def __init__(self, master, table, column, width=None, readonly=False, *args, **kargs):
+        '''
+        master = the frame to bind this frame to
+        name   = the text of the label
+        table  = the name of the database table that is associated with this widget
+        column = the name of the column this widget associates with
+        lw = label width
+        cw = control width
+        '''
+        self.logger = Logger(self, level=Logger.INFO)
+        self.logger.debug("EntryBox enter constructor")
+
+        super().__init__(master, *args, **kargs)
+
+        self.table = table
+        self.column = column
+        self.readonly = readonly
+        self.content = tk.StringVar(master)
+        self.entry = tk.Entry(self, textvariable=self.content, width=width)
+        self.entry.grid(row=0, column=1, padx=5, pady=5, sticky=tk.W)
+        if self.readonly:
+            self.entry.configure(state='readonly')
+
+        self.row = {'table': self.table, 'column':self.column, 'self':self, 'hasid':None}
+        self.logger.debug("EntryBox leave constructor")
+
+    # @debugger
+    # def set_id(self, table, column):
+    #     '''
+    #     When the column has a ID, rather than a value, use this to get the record
+    #     that the ID references.
+    #     '''
+    #     self.row['hasid'] = {'table':table, 'column':column}
+
+    @debugger
+    def read(self):
+        return self.content.get()
+
+    @debugger
+    def write(self, val):
+        if self.readonly:
+            self.entry.configure(state='normal')
+        self.content.set(val)
+        if self.readonly:
+            self.entry.configure(state='readonly')
+
+    @debugger
+    def clear(self):
+        self.content.set('')
+
+    @debugger
+    def get_line(self):
+        '''
+        Return the form entry to update the form.
+        '''
+        return self.row
 
 class ComboBox(tk.Frame):
     '''
@@ -85,6 +156,7 @@ class ComboBox(tk.Frame):
         self.content = ttk.Combobox(self, state='readonly')
         self.content.grid(row=0, column=1, padx=5, pady=5, sticky=tk.W)
 
+        self.row = {'table': self.table, 'column':self.column, 'self':self, 'hasid':None}
         self.logger.debug("ComboBox leave constructor")
 
     @debugger
@@ -112,14 +184,14 @@ class ComboBox(tk.Frame):
         '''
         Return the form entry to update the form.
         '''
-        return {'table': self.table, 'column':self.column, 'self':self}
+        return self.row
 
 class NotesBox(tk.Frame):
     '''
     Implement a notes widget and provide a regular interface to it, same as the
     other form widgets.
     '''
-    def __init__(self, master, table, column, *args, **kargs):
+    def __init__(self, master, table, column, height=20, width=60, *args, **kargs):
         '''
         master = the frame to bind this frame to
         name   = the text of the label
@@ -138,7 +210,7 @@ class NotesBox(tk.Frame):
         self.table = table
         frame2 = tk.Frame(self, bd=1, relief=tk.RIDGE)
         frame2.grid(row=0, column=1)
-        self.content = tk.Text(frame2, height=10, width=70)
+        self.content = tk.Text(frame2, height=height, width=width)
         self.sb = tk.Scrollbar(frame2)
         self.sb.pack(side=tk.RIGHT,fill=tk.Y)
         self.content.pack(side=tk.LEFT)
@@ -146,6 +218,7 @@ class NotesBox(tk.Frame):
         self.content.config(yscrollcommand=self.sb.set)
         self.content.insert(tk.END, '')
 
+        self.row = {'table': self.table, 'column':self.column, 'self':self, 'hasid':None}
         self.logger.debug("NotesBox leave constructor")
 
     @debugger
@@ -167,13 +240,13 @@ class NotesBox(tk.Frame):
         '''
         Return the form entry to update the form.
         '''
-        return {'table': self.table, 'column':self.column, 'self':self}
+        return self.row
 
 class ButtonBox(tk.Frame):
     '''
     Make the button box and register the events.
     '''
-    def __init__(self, master, form, *args, **kargs):
+    def __init__(self, master, form, disable_select=False, *args, **kargs):
         '''
         master = The frame to bind the widgets to.
         form = Name of the form to bind the events to.
@@ -183,14 +256,23 @@ class ButtonBox(tk.Frame):
 
         super().__init__(master, *args, **kargs)
 
+        row = 0
+        col = 0
+
         self.form = form
         self.events = EventHandler.get_instance()
-        tk.Button(self, text='Next', command=self.next_btn).grid(row=0, column=2, padx=5, pady=5)
-        tk.Button(self, text='Prev', command=self.prev_btn).grid(row=0, column=1, padx=5, pady=5)
-        tk.Button(self, text='Select', command=self.select_btn).grid(row=1, column=0, padx=5, pady=5)
-        tk.Button(self, text='New', command=self.new_btn).grid(row=1, column=1, padx=5, pady=5)
-        tk.Button(self, text='Save', command=self.save_btn).grid(row=1, column=2, padx=5, pady=5)
-        tk.Button(self, text='Delete', command=self.delete_btn).grid(row=1, column=3, padx=5, pady=5)
+        tk.Button(self, text='Prev', command=self.prev_btn).grid(row=row, column=col, padx=5, pady=5)
+        col+=1
+        tk.Button(self, text='Next', command=self.next_btn).grid(row=row, column=col, padx=5, pady=5)
+        if not disable_select:
+            col+=1
+            tk.Button(self, text='Select', command=self.select_btn).grid(row=row, column=col, padx=5, pady=5)
+        col+=1
+        tk.Button(self, text='New', command=self.new_btn).grid(row=row, column=col, padx=5, pady=5)
+        col+=1
+        tk.Button(self, text='Save', command=self.save_btn).grid(row=row, column=col, padx=5, pady=5)
+        col+=1
+        tk.Button(self, text='Delete', command=self.delete_btn).grid(row=row, column=col, padx=5, pady=5)
 
     @debugger
     def register_events(self, next, prev, select, new, save, delete):

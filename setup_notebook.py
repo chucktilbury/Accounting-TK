@@ -9,6 +9,7 @@ from form_widgets import *
 from notebk import NoteBk
 from importer import Importer
 from contact_form import CustomerForm, VendorForm
+from import_form import ImportPurchases, ImportSales
 
 class SetupNotebook(object):
 
@@ -20,8 +21,10 @@ class SetupNotebook(object):
         notebook.add_tab('Vendors', VendorForm)
         notebook.add_tab('Accounts', AccountsForm)
         notebook.add_tab('Inventory', InventoryForm)
-        notebook.add_tab('Trans Types', TransactionTypeForm)
-        notebook.add_tab('Transactions', TransactionsForm)
+        # notebook.add_tab('Trans Types', TransactionTypeForm)
+        # notebook.add_tab('Transactions', TransactionsForm)
+        notebook.add_tab(' Sales ', ImportSales)
+        notebook.add_tab(' Purchases ', ImportPurchases)
         notebook.add_tab('Import', ImportFiles)
 
         notebook.show_frame('Business')
@@ -439,187 +442,187 @@ class InventoryForm(SetupFormBase):
     def notebook_callback(self):
         self.set_form()
 
-# Note that the name of the transaction type maps to a function in code.
-# CREATE TABLE TransactionType
-#         (ID INTEGER PRIMARY KEY AUTOINCREMENT,
-#         name TEST NOT NULL,
-#         number INTEGER NOT NULL,
-#         description TEXT);
+# # Note that the name of the transaction type maps to a function in code.
+# # CREATE TABLE TransactionType
+# #         (ID INTEGER PRIMARY KEY AUTOINCREMENT,
+# #         name TEST NOT NULL,
+# #         number INTEGER NOT NULL,
+# #         description TEXT);
 
-class TransactionTypeForm(SetupFormBase):
-    '''
-    This is the main frame that "contains" the other frames.
-    '''
+# class TransactionTypeForm(SetupFormBase):
+#     '''
+#     This is the main frame that "contains" the other frames.
+#     '''
 
-    def __init__(self, master):
+#     def __init__(self, master):
 
-        super().__init__(master, "TransactionType")
-        self.form_contents = []
-        master.grid(padx=10, pady=10)
+#         super().__init__(master, "TransactionType")
+#         self.form_contents = []
+#         master.grid(padx=10, pady=10)
 
-        row = 0
-        col = 0
-        width = 50
+#         row = 0
+#         col = 0
+#         width = 50
 
-        header = Header(master, "Setup Transaction Type")
-        header.grid(row=row, column=col, columnspan=4)
+#         header = Header(master, "Setup Transaction Type")
+#         header.grid(row=row, column=col, columnspan=4)
 
-        row+=1
-        col=0
-        tk.Label(master, text='Name:').grid(row=row, column=col, sticky=(tk.E))
-        col+=1
-        self.name = EntryBox(master, self.table, 'name')
-        self.name.grid(row=row, column=col, sticky=(tk.W))
-        self.form_contents.append(self.name.get_line())
+#         row+=1
+#         col=0
+#         tk.Label(master, text='Name:').grid(row=row, column=col, sticky=(tk.E))
+#         col+=1
+#         self.name = EntryBox(master, self.table, 'name')
+#         self.name.grid(row=row, column=col, sticky=(tk.W))
+#         self.form_contents.append(self.name.get_line())
 
-        row+=1
-        col=0
-        tk.Label(master, text='Description:').grid(row=row, column=col, sticky=(tk.E))
-        col+=1
-        description = EntryBox(master, self.table, 'description', width=width)
-        description.grid(row=row, column=col, sticky=(tk.W))
-        self.form_contents.append(description.get_line())
+#         row+=1
+#         col=0
+#         tk.Label(master, text='Description:').grid(row=row, column=col, sticky=(tk.E))
+#         col+=1
+#         description = EntryBox(master, self.table, 'description', width=width)
+#         description.grid(row=row, column=col, sticky=(tk.W))
+#         self.form_contents.append(description.get_line())
 
-        row+=1
-        col=0
-        tk.Label(master, text='Notes:').grid(row=row, column=col, sticky=(tk.E))
-        col+=1
-        notes = NotesBox(master, self.table, 'notes')
-        notes.grid(row=row, column=col, columnspan=3, sticky=(tk.W))
-        self.form_contents.append(notes.get_line())
+#         row+=1
+#         col=0
+#         tk.Label(master, text='Notes:').grid(row=row, column=col, sticky=(tk.E))
+#         col+=1
+#         notes = NotesBox(master, self.table, 'notes')
+#         notes.grid(row=row, column=col, columnspan=3, sticky=(tk.W))
+#         self.form_contents.append(notes.get_line())
 
-        row+=1
-        col=0
-        buttons = ButtonBox(master, 'transaction_type_form')
-        buttons.grid(row=row, column=col, columnspan=4)
-        buttons.register_events(
-            self.next_btn_command,
-            self.prev_btn_command,
-            self.select_button_command,
-            self.new_button_command,
-            self.save_button_command,
-            self.del_button_command,
-        )
+#         row+=1
+#         col=0
+#         buttons = ButtonBox(master, 'transaction_type_form')
+#         buttons.grid(row=row, column=col, columnspan=4)
+#         buttons.register_events(
+#             self.next_btn_command,
+#             self.prev_btn_command,
+#             self.select_button_command,
+#             self.new_button_command,
+#             self.save_button_command,
+#             self.del_button_command,
+#         )
 
-        self.notebook_callback()
-        #self.set_form(self.crnt_index)
+#         self.notebook_callback()
+#         #self.set_form(self.crnt_index)
 
-    def notebook_callback(self):
-        self.set_form()
+#     def notebook_callback(self):
+#         self.set_form()
 
-# CREATE TABLE TransactionSequence
-#         (ID INTEGER PRIMARY KEY AUTOINCREMENT,
-#         name TEXT NOT NULL,
-#         description TEXT,
-#         notes TEXT,
-#         transaction_type_ID INTEGER NOT NULL,
-#         sequence_number INTEGER NOT NULL,
-#         raw_import_column TEXT,
-#         to_account_ID INTEGER NOT NULL,
-#         from_account_ID INTEGER NOT NULL);
+# # CREATE TABLE TransactionSequence
+# #         (ID INTEGER PRIMARY KEY AUTOINCREMENT,
+# #         name TEXT NOT NULL,
+# #         description TEXT,
+# #         notes TEXT,
+# #         transaction_type_ID INTEGER NOT NULL,
+# #         sequence_number INTEGER NOT NULL,
+# #         raw_import_column TEXT,
+# #         to_account_ID INTEGER NOT NULL,
+# #         from_account_ID INTEGER NOT NULL);
 
-class TransactionsForm(SetupFormBase):
-    '''
-    This is the main frame that "contains" the other frames.
-    '''
-    def __init__(self, master):
+# class TransactionsForm(SetupFormBase):
+#     '''
+#     This is the main frame that "contains" the other frames.
+#     '''
+#     def __init__(self, master):
 
-        super().__init__(master, "TransactionSequence")
-        self.form_contents = []
-        master.grid(padx=10, pady=10)
+#         super().__init__(master, "TransactionSequence")
+#         self.form_contents = []
+#         master.grid(padx=10, pady=10)
 
-        row=0
-        col=0
-        width = 50
+#         row=0
+#         col=0
+#         width = 50
 
-        header = Header(master, "Setup Transaction Sequence")
-        header.grid(row=row, column=col, columnspan=4)
+#         header = Header(master, "Setup Transaction Sequence")
+#         header.grid(row=row, column=col, columnspan=4)
 
-        row+=1
-        col=0
-        tk.Label(master, text='Name:').grid(row=row, column=col, sticky=(tk.E))
-        col+=1
-        self.name = EntryBox(master, self.table, 'name')
-        self.name.grid(row=row, column=col, sticky=(tk.W))
-        self.form_contents.append(self.name.get_line())
+#         row+=1
+#         col=0
+#         tk.Label(master, text='Name:').grid(row=row, column=col, sticky=(tk.E))
+#         col+=1
+#         self.name = EntryBox(master, self.table, 'name')
+#         self.name.grid(row=row, column=col, sticky=(tk.W))
+#         self.form_contents.append(self.name.get_line())
 
-        row+=1
-        col=0
-        tk.Label(master, text='Description:').grid(row=row, column=col, sticky=(tk.E))
-        col+=1
-        description = EntryBox(master, self.table, 'description', width=width)
-        description.grid(row=row, column=col, sticky=(tk.W), columnspan=4)
-        self.form_contents.append(description.get_line())
+#         row+=1
+#         col=0
+#         tk.Label(master, text='Description:').grid(row=row, column=col, sticky=(tk.E))
+#         col+=1
+#         description = EntryBox(master, self.table, 'description', width=width)
+#         description.grid(row=row, column=col, sticky=(tk.W), columnspan=4)
+#         self.form_contents.append(description.get_line())
 
-        row+=1
-        col=0
-        tk.Label(master, text='Transaction Type:').grid(row=row, column=col, sticky=(tk.E))
-        col+=1
-        self.transaction = ComboBox(master, self.table, 'transaction_type_ID')
-        self.transaction.grid(row=row, column=col, sticky=(tk.W))
-        self.form_contents.append(self.transaction.get_line())
+#         row+=1
+#         col=0
+#         tk.Label(master, text='Transaction Type:').grid(row=row, column=col, sticky=(tk.E))
+#         col+=1
+#         self.transaction = ComboBox(master, self.table, 'transaction_type_ID')
+#         self.transaction.grid(row=row, column=col, sticky=(tk.W))
+#         self.form_contents.append(self.transaction.get_line())
 
-        #row+=1
-        #col=0
-        col+=1
-        tk.Label(master, text='Raw Import Column:').grid(row=row, column=col, sticky=(tk.E))
-        col+=1
-        self.raw_column = ComboBox(master, self.table, 'raw_import_column')
-        self.raw_column.grid(row=row, column=col, sticky=(tk.W))
-        self.form_contents.append(self.raw_column.get_line())
+#         #row+=1
+#         #col=0
+#         col+=1
+#         tk.Label(master, text='Raw Import Column:').grid(row=row, column=col, sticky=(tk.E))
+#         col+=1
+#         self.raw_column = ComboBox(master, self.table, 'raw_import_column')
+#         self.raw_column.grid(row=row, column=col, sticky=(tk.W))
+#         self.form_contents.append(self.raw_column.get_line())
 
-        row+=1
-        col=0
-        tk.Label(master, text="From Account:").grid(row=row, column=col, sticky=(tk.E))
-        col+=1
-        self.from_account = ComboBox(master, self.table, 'from_account_ID')
-        self.from_account.grid(row=row, column=col, sticky=(tk.W))
-        self.form_contents.append(self.from_account.get_line())
+#         row+=1
+#         col=0
+#         tk.Label(master, text="From Account:").grid(row=row, column=col, sticky=(tk.E))
+#         col+=1
+#         self.from_account = ComboBox(master, self.table, 'from_account_ID')
+#         self.from_account.grid(row=row, column=col, sticky=(tk.W))
+#         self.form_contents.append(self.from_account.get_line())
 
-        #row+=1
-        #col=0
-        col+=1
-        tk.Label(master, text="To Account:").grid(row=row, column=col, sticky=(tk.E))
-        col+=1
-        self.to_account = ComboBox(master, self.table, 'to_account_ID')
-        self.to_account.grid(row=row, column=col, sticky=(tk.W))
-        self.form_contents.append(self.to_account.get_line())
+#         #row+=1
+#         #col=0
+#         col+=1
+#         tk.Label(master, text="To Account:").grid(row=row, column=col, sticky=(tk.E))
+#         col+=1
+#         self.to_account = ComboBox(master, self.table, 'to_account_ID')
+#         self.to_account.grid(row=row, column=col, sticky=(tk.W))
+#         self.form_contents.append(self.to_account.get_line())
 
-        row+=1
-        col=0
-        tk.Label(master, text="Sequence:").grid(row=row, column=col, sticky=(tk.E))
-        col+=1
-        sequence = EntryBox(master, self.table, 'sequence_number')
-        sequence.grid(row=row, column=col, sticky=(tk.W))
-        self.form_contents.append(sequence.get_line())
+#         row+=1
+#         col=0
+#         tk.Label(master, text="Sequence:").grid(row=row, column=col, sticky=(tk.E))
+#         col+=1
+#         sequence = EntryBox(master, self.table, 'sequence_number')
+#         sequence.grid(row=row, column=col, sticky=(tk.W))
+#         self.form_contents.append(sequence.get_line())
 
-        row+=1
-        col=0
-        tk.Label(master, text='Notes:').grid(row=6, column=0, sticky=(tk.E))
-        col+=1
-        notes = NotesBox(master, self.table, 'notes')
-        notes.grid(row=row, column=col, columnspan=3, sticky=(tk.W))
-        self.form_contents.append(notes.get_line())
+#         row+=1
+#         col=0
+#         tk.Label(master, text='Notes:').grid(row=6, column=0, sticky=(tk.E))
+#         col+=1
+#         notes = NotesBox(master, self.table, 'notes')
+#         notes.grid(row=row, column=col, columnspan=3, sticky=(tk.W))
+#         self.form_contents.append(notes.get_line())
 
-        row+=1
-        col=0
-        buttons = ButtonBox(master, 'transactions_form')
-        buttons.grid(row=row, column=col, columnspan=4)
-        buttons.register_events(
-            self.next_btn_command,
-            self.prev_btn_command,
-            self.select_button_command,
-            self.new_button_command,
-            self.save_button_command,
-            self.del_button_command,
-        )
+#         row+=1
+#         col=0
+#         buttons = ButtonBox(master, 'transactions_form')
+#         buttons.grid(row=row, column=col, columnspan=4)
+#         buttons.register_events(
+#             self.next_btn_command,
+#             self.prev_btn_command,
+#             self.select_button_command,
+#             self.new_button_command,
+#             self.save_button_command,
+#             self.del_button_command,
+#         )
 
-        self.notebook_callback()
+#         self.notebook_callback()
 
-    def notebook_callback(self):
-        self.transaction.populate('TransactionType', 'name')
-        self.raw_column.populate('RawImportNames', 'name')
-        self.from_account.populate('Account', 'name')
-        self.to_account.populate('Account', 'name')
-        self.set_form()
+#     def notebook_callback(self):
+#         self.transaction.populate('TransactionType', 'name')
+#         self.raw_column.populate('RawImportNames', 'name')
+#         self.from_account.populate('Account', 'name')
+#         self.to_account.populate('Account', 'name')
+#         self.set_form()
 

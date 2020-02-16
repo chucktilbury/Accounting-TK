@@ -26,10 +26,10 @@ INSERT INTO ContactClass
     VALUES
         ('wholesale'), ('retail'), ('gratis'), ('other');
 
-INSERT INTO ImportRecordType
-        (name)
-    VALUES
-        ('credit'), ('debit');
+#INSERT INTO ImportRecordType
+#        (name)
+#    VALUES
+#        ('credit'), ('debit');
 
 INSERT INTO SaleStatus
         (name)
@@ -42,10 +42,20 @@ INSERT INTO PurchaseStatus
     VALUES
         ('paid'), ('shipped'), ('backorder'), ('arrived'), ('other');
 
-INSERT INTO PurchaseStatus
+INSERT INTO PurchaseType
         (name)
     VALUES
         ('cogs'), ('other'), ('unknown');
+
+INSERT INTO VendorType
+        (name)
+    VALUES
+        ('cogs'), ('other'), ('unknown');
+
+INSERT INTO CommittedState
+        (name)
+    VALUES
+        ('yes'), ('no');
 
 ###############################################################################
 #

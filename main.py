@@ -13,6 +13,7 @@ from dialogs import BaseDialog
 from importer import Importer
 from notebk import NoteBk, DummyClass
 from setup_notebook import SetupNotebook
+from events import EventHandler
 
 class MainFrame(tk.Frame):
     '''
@@ -66,6 +67,8 @@ class MainFrame(tk.Frame):
             self.data.close()
             self.logger.debug("end main loop")
 
+            #ev = EventHandler.get_instance()
+            #ev.dump_events()
         except Exception:
             traceback.print_exception(*sys.exc_info())
 

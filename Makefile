@@ -10,6 +10,7 @@ DEPS	=	main.py \
 			form_widgets.py \
 			setup_form.py \
 			setup_notebook.py \
+			import_form.py \
 			contact_form.py
 
 all: $(TARGET)
