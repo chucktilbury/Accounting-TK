@@ -234,6 +234,34 @@ CREATE TABLE PurchaseStatus
 # Static data: yes, no
 
 ###############################################################################
+# When a sale or a purchase is committed, it consists of several smaller
+# transactions. The GenericTransaction represents those such as splitting
+# the fees and shipping out of a sale. The from_account is reduced by the
+# gross amount and the to account is increased by that amount.
+CREATE TABLE GenericTransaction
+        (ID INTEGER PRIMARY KEY AUTOINCREMENT,
+        date_committed INTEGER NOT NULL,
+        gross REAL NOT NULL,
+        description TEXT,
+        note TEXT,
+        from_account_ID INTEGER,
+        to_account_ID INTEGER);
+
+###############################################################################
+# These tables link the generic transaction to a purchase or a sale. When
+# reports are generated, these records are used to track the generic
+# transaction back to the actual sale or purchase.
+CREATE TABLE PGenericTransaction
+        (ID INTEGER PRIMARY KEY AUTOINCREMENT,
+        generic_trans_ID INTEGER NOT NULL,
+        purchase_trans_ID INTEGER NOT NULL);
+
+CREATE TABLE SGenericTransaction
+        (ID INTEGER PRIMARY KEY AUTOINCREMENT,
+        generic_trans_ID INTEGER NOT NULL,
+        sale_trans_ID INTEGER NOT NULL);
+
+###############################################################################
 ### Raw import table
 CREATE TABLE RawImport
         (ID INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -293,30 +321,3 @@ CREATE TABLE ImportedFileNames
         date TEXT NOT NULL,
         name TEXT NOT NULL);
 
-###############################################################################
-# When a sale or a purchase is committed, it consists of several smaller
-# transactions. The GenericTransaction represents those such as splitting
-# the fees and shipping out of a sale. The from_account is reduced by the
-# gross amount and the to account is increased by that amount.
-CREATE TABLE GenericTransaction
-        (ID INTEGER PRIMARY KEY AUTOINCREMENT,
-        date_committed INTEGER NOT NULL,
-        gross REAL NOT NULL,
-        description TEXT,
-        note TEXT,
-        from_account_ID INTEGER,
-        to_account_ID INTEGER);
-
-###############################################################################
-# These tables link the generic transaction to a purchase or a sale. When
-# reports are generated, these records are used to track the generic
-# transaction back to the actual sale or purchase.
-CREATE TABLE PGenericTransaction
-        (ID INTEGER PRIMARY KEY AUTOINCREMENT,
-        generic_trans_ID INTEGER NOT NULL,
-        purchase_trans_ID INTEGER NOT NULL);
-
-CREATE TABLE SGenericTransaction
-        (ID INTEGER PRIMARY KEY AUTOINCREMENT,
-        generic_trans_ID INTEGER NOT NULL,
-        sale_trans_ID INTEGER NOT NULL);

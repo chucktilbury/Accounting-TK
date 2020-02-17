@@ -1,3 +1,5 @@
+import time
+
 from tkinter import ttk
 from tkinter import messagebox as mb
 import tkinter as tk
@@ -29,6 +31,9 @@ class CommitSale:
                 shipping = item['self'].read()
 
         # Add the gross to the Cash account
+        row = {
+            'date_committed': time.strftime('%m/%d/%Y')
+        }
         # Add the fees to BankFees account and decrement Cash
         # Add the shipping to the ShippingCollected account and decrement Cash
 
