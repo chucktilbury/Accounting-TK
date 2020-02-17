@@ -232,7 +232,7 @@ class Database(object):
 
         sql = 'INSERT INTO %s (%s) VALUES (%s);'%(table, keys, qmks)
         self.logger.debug("SQL=%s (%s)" % (sql, vals))
-        return self.db.execute(sql, vals)
+        return self.db.execute(sql, vals).lastrowid
 
     @debugger
     def update_row(self, table, rec, where):

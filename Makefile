@@ -11,6 +11,7 @@ DEPS	=	main.py \
 			setup_form.py \
 			setup_notebook.py \
 			import_form.py \
+			committer.py \
 			contact_form.py
 
 all: $(TARGET)

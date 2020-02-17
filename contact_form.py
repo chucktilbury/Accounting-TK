@@ -177,10 +177,7 @@ class CustomerForm(SetupFormBase):
 
         row+=1
         col=0
-        if importing:
-            buttons = ButtonBox(master, 'customer_form_import')
-        else:
-            buttons = ButtonBox(master, 'customer_form')
+        buttons = ButtonBox(master, 'customer_form')
         buttons.grid(row=row, column=col, columnspan=4)
         buttons.register_events(
             self.next_btn_command,
@@ -190,13 +187,6 @@ class CustomerForm(SetupFormBase):
             self.save_button_command,
             self.del_button_command
         )
-
-        if importing:
-            row+=1
-            col=0
-            buttons = SingleButtonBox(master, 'customer_form_import', 'Import')
-            buttons.grid(row=row, column=col, columnspan=4)
-            buttons.register_events(self.import_customers)
 
         self.row = row
         self.notebook_callback()
@@ -208,29 +198,38 @@ class CustomerForm(SetupFormBase):
         self.country_ID.populate('Country', 'name')
         self.set_form()
 
-
-    def import_customers(self):
-        self.importer.import_customer_contacts()
-
     @debugger
     def del_button_command(self):
         '''
-        Delete the item given in the form from the database
-
+        Delete the item given in the form from the database.
         This is an override to the parent class.
-        TODO
-        Check to see if there are any references to the customer in the
-        SalesRecods table and if there are, prompt to delete those as
-        well. If the user opts to not delete the sales records, then
-        deleting this contact will fail as well.
         '''
+        row = self.data.get_row_list('SaleRecord', 'committed_ID = 1 and customer_ID = %d'%(self.id_list[self.crnt_index]))
+        if not row is None:
+            mb.showerror("ERROR", "Cannot delete the record because there are transactions committed for this customer.")
+            return
+
+        row = self.data.get_row_list('SaleRecord', 'committed_ID = 2 and customer_ID = %d'%(self.id_list[self.crnt_index]))
+        #print('\n\n%s\n\n'%(str(row)))
+        if not row is None:
+            val = mb.askokcancel("Sure?", "There are %d uncommitted sales for this Customer. They will be deleted as well.\n\nContinue?"%(len(row)))
+            if val:
+                count = 0
+                for item in row:
+                    self.data.delete_row('SaleRecord', row[0]['ID'])
+                    count += 1
+                mb.showinfo('INFO', 'There were %d Sale Records deleted.'%(count))
+            else:
+                return
+
         val = mb.askokcancel("Sure?", "Are you sure you want to delete item from %s?"%(self.table))
         if val:
             self.logger.info("Deleting item %d from %s"%(self.id_list[self.crnt_index], self.table))
             self.data.delete_row(self.table, self.id_list[self.crnt_index])
             self.data.commit()
-            self.id_list = self.data.get_id_list(self.table)
-            self.crnt_index = 0
+            self.id_list = self.get_id_list()
+            if self.crnt_index >= len(self.id_list):
+                self.crnt_index -= 1
             self.set_form()
 
 # CREATE TABLE Vendor
@@ -348,10 +347,7 @@ class VendorForm(SetupFormBase):
 
         row+=1
         col=0
-        if importing:
-            buttons = ButtonBox(master, 'vendor_form_import')
-        else:
-            buttons = ButtonBox(master, 'vendor_form')
+        buttons = ButtonBox(master, 'vendor_form')
         buttons.grid(row=row, column=col, columnspan=4)
         buttons.register_events(
             self.next_btn_command,
@@ -361,13 +357,6 @@ class VendorForm(SetupFormBase):
             self.save_button_command,
             self.del_button_command
         )
-
-        if importing:
-            row+=1
-            col=0
-            buttons = SingleButtonBox(master, 'vendor_form_import', 'Import')
-            buttons.grid(row=row, column=col, columnspan=4)
-            buttons.register_events(self.import_vendors)
 
         self.row = row
         self.notebook_callback()
@@ -380,26 +369,35 @@ class VendorForm(SetupFormBase):
         self.set_form()
 
     @debugger
-    def import_vendors(self):
-        self.importer.import_vendor_contacts()
-
-    @debugger
     def del_button_command(self):
         '''
-        Delete the item given in the form from the database
-
+        Delete the item given in the form from the database.
         This is an override to the parent class.
-        TODO
-        Check to see if there are any references to the vendor in the
-        PurchaseRecods table and if there are, prompt to delete those
-        as well. If the user opts to not delete the purchase records,
-        then deleting this contact will fail as well.
         '''
+        row = self.data.get_row_list('PurchaseRecord', 'committed_ID = 1 and vendor_ID = %d'%(self.id_list[self.crnt_index]))
+        if not row is None:
+            mb.showerror("ERROR", "Cannot delete the record because there are transactions committed for this vendor.")
+            return
+
+        row = self.data.get_row_list('PurchaseRecord', 'committed_ID = 2 and vendor_ID = %d'%(self.id_list[self.crnt_index]))
+        print('\n\n%s\n\n'%(str(row)))
+        if not row is None:
+            val = mb.askokcancel("Sure?", "There are %d uncommitted sales for this vendor. They will be deleted as well.\n\nContinue?"%(len(row)))
+            if val:
+                count = 0
+                for item in row:
+                    self.data.delete_row('PurchaseRecord', row[0]['ID'])
+                    count += 1
+                mb.showinfo('INFO', 'There were %d Purchase Records deleted.'%(count))
+            else:
+                return
+
         val = mb.askokcancel("Sure?", "Are you sure you want to delete item from %s?"%(self.table))
         if val:
             self.logger.info("Deleting item %d from %s"%(self.id_list[self.crnt_index], self.table))
             self.data.delete_row(self.table, self.id_list[self.crnt_index])
             self.data.commit()
-            self.id_list = self.data.get_id_list(self.table)
-            self.crnt_index = 0
+            self.id_list = self.get_id_list()
+            if self.crnt_index >= len(self.id_list):
+                self.crnt_index -= 1
             self.set_form()

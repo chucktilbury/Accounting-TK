@@ -244,7 +244,7 @@ class Importer(object):
                         'tax': self.data.convert_value(item['SalesTax'], float),
                         'shipping': self.data.convert_value(item['Shipping'], float),
                         'notes': item['Subject'] + '\n' +item['ItemTitle'],
-                        'committed_ID': self.data.get_id_by_row('CommittedState', 'name', 'no')}
+                        'committed': False}
 
                 self.data.insert_row('PurchaseRecord', rec)
                 self.data.update_row_by_id('RawImport', {'imported_purchase':True}, item['ID'])
@@ -273,7 +273,7 @@ class Importer(object):
                         'fees': self.data.convert_value(item['Fee'], float),
                         'shipping': self.data.convert_value(item['Shipping'], float),
                         'notes': item['Subject'] + '\n' +item['ItemTitle'],
-                        'committed_ID': self.data.get_id_by_row('CommittedState', 'name', 'no')}
+                        'committed': False}
 
                 self.data.insert_row('SaleRecord', rec)
                 count+=1

@@ -188,7 +188,7 @@ CREATE TABLE SaleRecord
         fees REAL NOT NULL,
         shipping REAL NOT NULL,
         notes TEXT,
-        committed_ID INTEGER NOT NULL);
+        committed BOOL NOT NULL);
 
 # This table connects what was sold to the sale record, many to one.
 CREATE TABLE ProductList
@@ -216,7 +216,7 @@ CREATE TABLE PurchaseRecord
         tax REAL,
         shipping REAL,
         notes TEXT,
-        committed_ID INTEGER NOT NULL);
+        committed BOOL NOT NULL);
 
 CREATE TABLE PurchaseType
         (ID INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -228,9 +228,9 @@ CREATE TABLE PurchaseStatus
         name TEXT NOT NULL);
 # Static data: paid, shipped, backorder, arrived, other
 
-CREATE TABLE CommittedState
-        (ID INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL);
+#CREATE TABLE CommittedState
+#        (ID INTEGER PRIMARY KEY AUTOINCREMENT,
+#        name TEXT NOT NULL);
 # Static data: yes, no
 
 ###############################################################################
@@ -294,16 +294,29 @@ CREATE TABLE ImportedFileNames
         name TEXT NOT NULL);
 
 ###############################################################################
-### Table for any random thing that doesn't fit somewhere else.
-CREATE TABLE Config
+# When a sale or a purchase is committed, it consists of several smaller
+# transactions. The GenericTransaction represents those such as splitting
+# the fees and shipping out of a sale. The from_account is reduced by the
+# gross amount and the to account is increased by that amount.
+CREATE TABLE GenericTransaction
         (ID INTEGER PRIMARY KEY AUTOINCREMENT,
-        last_contact_ID INTEGER);
+        date_committed INTEGER NOT NULL,
+        gross REAL NOT NULL,
+        description TEXT,
+        note TEXT,
+        from_account_ID INTEGER,
+        to_account_ID INTEGER);
 
 ###############################################################################
-### This table links paypal transaction IDs to customers or vendors
-CREATE TABLE TransactionID
+# These tables link the generic transaction to a purchase or a sale. When
+# reports are generated, these records are used to track the generic
+# transaction back to the actual sale or purchase.
+CREATE TABLE PGenericTransaction
         (ID INTEGER PRIMARY KEY AUTOINCREMENT,
-        transaction_id TEXT NOT NULL,
-        customer_ID INTEGER, # One of these will be NULL
-        vendor_ID INTEGER);
+        generic_trans_ID INTEGER NOT NULL,
+        purchase_trans_ID INTEGER NOT NULL);
 
+CREATE TABLE SGenericTransaction
+        (ID INTEGER PRIMARY KEY AUTOINCREMENT,
+        generic_trans_ID INTEGER NOT NULL,
+        sale_trans_ID INTEGER NOT NULL);

@@ -208,15 +208,24 @@ class NotesBox(tk.Frame):
 
         self.column = column
         self.table = table
+
         frame2 = tk.Frame(self, bd=1, relief=tk.RIDGE)
         frame2.grid(row=0, column=1)
-        self.content = tk.Text(frame2, height=height, width=width)
-        self.sb = tk.Scrollbar(frame2)
-        self.sb.pack(side=tk.RIGHT,fill=tk.Y)
-        self.content.pack(side=tk.LEFT)
-        self.sb.config(command=self.content.yview)
-        self.content.config(yscrollcommand=self.sb.set)
+        self.content = tk.Text(frame2, height=height, width=width, wrap=tk.NONE)
         self.content.insert(tk.END, '')
+
+        # see https://www.homeandlearn.uk/tkinter-scrollbars.html
+        self.vsb = tk.Scrollbar(frame2, orient=tk.VERTICAL)
+        self.vsb.config(command=self.content.yview)
+        self.content.config(yscrollcommand=self.vsb.set)
+        self.vsb.pack(side=tk.RIGHT,fill=tk.Y)
+
+        self.hsb = tk.Scrollbar(frame2, orient=tk.HORIZONTAL)
+        self.hsb.config(command=self.content.xview)
+        self.content.config(xscrollcommand=self.hsb.set)
+        self.hsb.pack(side=tk.BOTTOM,fill=tk.X)
+
+        self.content.pack(side=tk.LEFT)
 
         self.row = {'table': self.table, 'column':self.column, 'self':self, 'hasid':None}
         self.logger.debug("NotesBox leave constructor")

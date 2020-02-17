@@ -52,10 +52,10 @@ INSERT INTO VendorType
     VALUES
         ('cogs'), ('other'), ('unknown');
 
-INSERT INTO CommittedState
-        (name)
-    VALUES
-        ('yes'), ('no');
+#INSERT INTO CommittedState
+#        (name)
+#    VALUES
+#        ('yes'), ('no');
 
 ###############################################################################
 #
