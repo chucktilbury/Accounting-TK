@@ -26,7 +26,7 @@ class ImportSales(SetupFormBase):
     '''
     def __init__(self, master, *args, **kargs):
 
-        super().__init__(master, 'SaleRecord', *args, **kargs)
+        super().__init__(master, 'SaleRecord', empty_ok=True, *args, **kargs)
         self.form_contents = []
         master.grid(padx=10, pady=10)
 
@@ -108,7 +108,7 @@ class ImportSales(SetupFormBase):
 
         row+=1
         col=0
-        buttons = ButtonBox(master, 'sales_form_import', disable_select=True)
+        buttons = ButtonBox(master, 'sales_form_import', disable_select=True, disable_new=True)
         buttons.grid(row=row, column=col, columnspan=4)
         buttons.register_events(
             self.next_btn_command,
@@ -138,16 +138,22 @@ class ImportSales(SetupFormBase):
 
     @debugger
     def notebook_callback(self):
+        self.id_list = self.get_id_list()
         #self.committed_ID.populate('CommittedState', 'name')
-        self.status_ID.populate('SaleStatus', 'name')
-        self.set_form()
+        if not self.id_list is None:
+            self.status_ID.populate('SaleStatus', 'name')
+            self.set_form()
+        else:
+            mb.showinfo('INFO', 'There are no uncommitted sales records to view.')
 
     @debugger
     def commit_sales(self):
         '''
         Import sale records
         '''
-        CommitSale(self.form_contents, self.id_list[self.crnt_index])
+        if not self.id_list is None:
+            CommitSale(self.form_contents, self.id_list[self.crnt_index])
+        self.set_form()
 
 # CREATE TABLE PurchaseRecord
 #         (ID INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -168,7 +174,7 @@ class ImportPurchases(SetupFormBase):
     '''
     def __init__(self, master, *args, **kargs):
 
-        super().__init__(master, 'PurchaseRecord', *args, **kargs)
+        super().__init__(master, 'PurchaseRecord', empty_ok=True, *args, **kargs)
         self.form_contents = []
         master.grid(padx=10, pady=10)
 
@@ -264,7 +270,7 @@ class ImportPurchases(SetupFormBase):
         row+=1
         col=0
         #col+=1
-        buttons = ButtonBox(master, 'purchases_form_import', disable_select=True)
+        buttons = ButtonBox(master, 'purchases_form_import', disable_select=True, disable_new=True)
         buttons.grid(row=row, column=col, columnspan=4)
         buttons.register_events(
             self.next_btn_command,
@@ -294,10 +300,14 @@ class ImportPurchases(SetupFormBase):
 
     @debugger
     def notebook_callback(self):
+        self.id_list = self.get_id_list()
         #self.committed_ID.populate('CommittedState', 'name')
-        self.status_ID.populate('PurchaseStatus', 'name')
-        self.type_ID.populate('PurchaseType', 'name')
-        self.set_form()
+        if not self.id_list is None:
+            self.status_ID.populate('PurchaseStatus', 'name')
+            self.type_ID.populate('PurchaseType', 'name')
+            self.set_form()
+        else:
+            mb.showinfo('INFO', 'There are no uncommitted sales records to view.')
 
     @debugger
     def commit_purchases(self):
@@ -305,4 +315,6 @@ class ImportPurchases(SetupFormBase):
         Import sales records
         '''
         # Validate that the commit has a valid type of cogs or other.
-        CommitPurchase(self.form_contents, self.id_list[self.crnt_index])
+        if not self.id_list is None:
+            CommitPurchase(self.form_contents, self.id_list[self.crnt_index])
+        self.set_form()

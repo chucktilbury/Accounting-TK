@@ -10,12 +10,13 @@ class SetupFormBase(object):
     This class provides common services for forms in the setup notebook.
     '''
 
-    def __init__(self, master, table):
+    def __init__(self, master, table, empty_ok=False):
         self.logger = Logger(self, level=Logger.DEBUG)
         self.logger.debug("Setup Dialog start constructor")
 
         self.master = master
         self.table = table
+        self.empty_ok = empty_ok
         self.data = Database.get_instance()
 
         self.id_list = self.get_id_list()
@@ -56,38 +57,42 @@ class SetupFormBase(object):
     @debugger
     def save_button_command(self):
         ''' Save the form to the database '''
-        self.get_form()
+        if not self.id_list is None:
+            self.get_form()
 
     @debugger
     def del_button_command(self):
         ''' Delete the item given in the form from the database '''
-        val = mb.askokcancel("Sure?", "Are you sure you want to delete item from %s?"%(self.table))
-        if val:
-            self.logger.info("Deleting item %d from %s"%(self.id_list[self.crnt_index], self.table))
-            self.data.delete_row(self.table, self.id_list[self.crnt_index])
-            self.data.commit()
-            self.id_list = self.get_id_list()
-            if self.crnt_index >= len(self.id_list):
-                self.crnt_index -= 1
-            self.set_form()
+        if not self.id_list is None:
+            val = mb.askokcancel("Sure?", "Are you sure you want to delete item from %s?"%(self.table))
+            if val:
+                self.logger.info("Deleting item %d from %s"%(self.id_list[self.crnt_index], self.table))
+                self.data.delete_row(self.table, self.id_list[self.crnt_index])
+                self.data.commit()
+                self.id_list = self.get_id_list()
+                if self.crnt_index >= len(self.id_list):
+                    self.crnt_index -= 1
+                self.set_form()
 
     @debugger
     def next_btn_command(self):
         ''' Go to the next item in the form table '''
-        self.crnt_index += 1
-        if self.crnt_index >= len(self.id_list):
-            self.crnt_index = len(self.id_list)-1
+        if not self.id_list is None:
+            self.crnt_index += 1
+            if self.crnt_index >= len(self.id_list):
+                self.crnt_index = len(self.id_list)-1
 
-        self.set_form()
+            self.set_form()
 
     @debugger
     def prev_btn_command(self):
         ''' Go to the previous item in the table '''
-        self.crnt_index -= 1
-        if self.crnt_index < 0:
-            self.crnt_index = 0
+        if not self.id_list is None:
+            self.crnt_index -= 1
+            if self.crnt_index < 0:
+                self.crnt_index = 0
 
-        self.set_form()
+            self.set_form()
 
     @debugger
     def clear_form(self):
@@ -104,18 +109,25 @@ class SetupFormBase(object):
         '''
         Read the database and place the data in the form.
         '''
+        if self.id_list is None:
+            return
+
         try:
             self.id_list = self.get_id_list()
             row_id = self.id_list[self.crnt_index]
         except IndexError:
-            self.logger.info('No records defined for table \'%s\''%(self.table))
-            mb.showinfo('Records', 'There are no records available for this form: \'%s\".'%(self.table))
+            if not self.empty_ok:
+                self.logger.info('No records defined for table \'%s\''%(self.table))
+                mb.showinfo('Records', 'There are no records available for this form: \'%s\".'%(self.table))
+            self.clear_form()
             return
 
         row = self.data.get_row_by_id(self.table, row_id)
         if row is None:
-            self.logger.info('No records defined for table \'%s\''%(self.table))
-            mb.showinfo('Records', 'There are no records available for this table: \'%s\'.'%(self.table))
+            if not self.empty_ok:
+                self.logger.info('No records defined for table \'%s\''%(self.table))
+                mb.showinfo('Records', 'There are no records available for this table: \'%s\'.'%(self.table))
+            self.clear_form()
             return
 
         print(self.form_contents)
@@ -133,6 +145,9 @@ class SetupFormBase(object):
         '''
         Read the form and place the data in the database.
         '''
+        if self.id_list is None:
+            return
+
         row = {}
         for item in self.form_contents:
             if not item['hasid'] is None:

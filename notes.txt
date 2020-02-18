@@ -1,13 +1,12 @@
 
 Add the product attribute to the sale record form. Sale items are attributed
-to a customer and connected to the sale record.
+to a customer and connected to the sale record. Add a dialog to associate and
+view sale items with a sale in the sale import form.
 
-Purchase notes hold what was actually bought.
-
-Add logic to validate when commit the purchase
-
-Add logic to automagically change the committed field in the sales/purchase record.
-
-The new button does not make sense for the import sales and purchases forms.
+Purchase notes hold what was actually bought. This requires hand editing. not
+sure how to do it otherwise.
 
 Need to change the logic such that Cash does not see the sale until it ships.
+
+Do not add sales to cash until the order has shipped. Need to add a "Sale"
+account as a liability to hold unfulfilled sales.

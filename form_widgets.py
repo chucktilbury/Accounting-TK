@@ -255,7 +255,7 @@ class ButtonBox(tk.Frame):
     '''
     Make the button box and register the events.
     '''
-    def __init__(self, master, form, disable_select=False, *args, **kargs):
+    def __init__(self, master, form, disable_select=False, disable_new=False, *args, **kargs):
         '''
         master = The frame to bind the widgets to.
         form = Name of the form to bind the events to.
@@ -276,8 +276,9 @@ class ButtonBox(tk.Frame):
         if not disable_select:
             col+=1
             tk.Button(self, text='Select', command=self.select_btn).grid(row=row, column=col, padx=5, pady=5)
-        col+=1
-        tk.Button(self, text='New', command=self.new_btn).grid(row=row, column=col, padx=5, pady=5)
+        if not disable_new:
+            col+=1
+            tk.Button(self, text='New', command=self.new_btn).grid(row=row, column=col, padx=5, pady=5)
         col+=1
         tk.Button(self, text='Save', command=self.save_btn).grid(row=row, column=col, padx=5, pady=5)
         col+=1

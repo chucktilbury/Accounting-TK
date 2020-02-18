@@ -125,7 +125,7 @@ class Importer(object):
                 tmp[self.legend[idx]] = item
             data.append(tmp)
 
-            if tmp['Status'] == 'Completed' and tmp['Name'] != '' and tmp['Name'] != 'PayPal':
+            if tmp['Status'] == 'Completed': # and tmp['Name'] != '' and tmp['Name'] != 'PayPal':
                 tmp['imported_country'] = False
                 tmp['imported_customer'] = False
                 tmp['imported_vendor'] = False
@@ -134,7 +134,7 @@ class Importer(object):
                 if not self.data.if_rec_exists('RawImport', 'TransactionID', tmp['TransactionID']):
                     self.data.insert_row('RawImport', tmp)
                     count+=1
-
+        # BUG: Import all of the completed records into the Raw Import table.
         self.data.commit()
         return count
 
@@ -184,9 +184,10 @@ class Importer(object):
                             'class_ID': self.data.get_id_by_row('ContactClass', 'name', 'retail')}
 
                     self.data.insert_row('Customer', rec)
-                    self.data.update_row_by_id('RawImport', {'imported_customer':True}, item['ID'])
                     count+=1
-
+                # BUG: (fixed) When there are multiple instances of a name, the sale or purch record does not get imported
+                # because the imported_customer field does not get updated due to the duplicate name interlock.
+                self.data.update_row_by_id('RawImport', {'imported_customer':True}, item['ID'])
         self.data.commit()
         mb.showinfo('INFO', 'Imported %d customer contacts.'%(count))
 
