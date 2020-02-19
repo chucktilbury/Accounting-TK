@@ -205,10 +205,16 @@ class NoteBk(tk.Frame):
         return self.frame_list[title]['frame']()
 
     @debugger
-    def add_tab(self, title, frame_class, scrolling=False, *args, **kargs):
+    def add_tab(self, title, frame_class, scrolling=False, height=None, width=None, *args, **kargs):
         '''
         Add a new tab to the notebook.
         '''
+        if height is None:
+            height = self.height
+
+        if width is None:
+            width = self.width
+
         self.events.register_event('show_frame_%s'%(title), self.show_frame)
         panel_frame = {}
         btn = NoteBkBtn(self.btn_frame, title, self.uuid)
@@ -216,7 +222,7 @@ class NoteBk(tk.Frame):
         panel_frame['btn'] = btn
 
         self.logger.debug("title: \'%s\'"%(title))
-        panel_frame['frame'] = ScrollableFrame(self.wid_frame, height=self.height, width=self.width, scrolling=scrolling)
+        panel_frame['frame'] = ScrollableFrame(self.wid_frame, height=height, width=width, scrolling=scrolling)
         #obj = frame_class(panel_frame['frame'], *args, **kargs)
         obj = frame_class(panel_frame['frame'].scrollwindow, *args, **kargs)
 

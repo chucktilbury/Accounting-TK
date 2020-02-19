@@ -47,6 +47,7 @@ class LabelBox(tk.Frame):
         that the ID references.
         '''
         self.row['hasid'] = {'table':table, 'column':column, 'id':id}
+        return id
 
     @debugger
     def read(self):
@@ -355,26 +356,41 @@ class LineWidget(tk.Frame):
         form = Name of the form to bind the events to.
         line = The line number of the line, displayed as a label
         '''
-        self.logger = Logger(self, level=Logger.INFO)
+        self.logger = Logger(self, level=Logger.DEBUG)
         self.logger.debug("Line Widget enter constructor")
+        self.data = Database.get_instance()
 
         super().__init__(master, *args, **kargs)
 
         self.form = form
-        self.name = text.lower()
         self.events = EventHandler.get_instance()
         #self.data = Database.get_instance()
 
         self.values = self.data.populate_list('InventoryItem', 'name')
         self.values.insert(0, '') # first line is blank
 
-        tk.Label(master, text='%d'%(int(line))).grid(row=0, column=0)
-        self.quan_str = tk.StringVar('0')
-        tk.Entry(master, textvariable=self.quan_str).grid(row=0, column=1)
-        self.prod = ttk.Combobox(master, values=self.values)
+        tk.Label(self, text='%d'%(int(line))).grid(row=0, column=0)
+        self.quan = tk.Spinbox(self, from_=1, to=99, width=2)
+        self.quan.grid(row=0, column=1, padx=5, pady=5)
+        self.prod = ttk.Combobox(self, values=self.values, width=40)
         self.prod.grid(row=0, column=2)
 
         self.logger.debug("Line Widget leave constructor")
+
+    @debugger
+    def get_str(self):
+        return self.prod.get()
+
+    @debugger
+    def read(self):
+        val = self.prod.get()
+        if not val is None and val != '':
+            return (int(self.quan.get()), val)
+        else:
+            return None
+
+    # There is no get line or write function because this is managed by the
+    # LineBox widget.
 
 class LineBox(tk.Frame):
     '''
@@ -382,17 +398,81 @@ class LineBox(tk.Frame):
     line boxes and has the ability to write them all to the database when the
     write method is called.
     '''
-def __init__(self, master, form=None, *args, **kargs):
+    def __init__(self, master, form=None, *args, **kargs):
         '''
         master = The frame to bind the widgets to.
+        name_id = The id of the line containing the customer to associate
         form = Name of the form to bind the events to.
         '''
-        self.logger = Logger(self, level=Logger.INFO)
+        self.logger = Logger(self, level=Logger.DEBUG)
         self.logger.debug("Line Widget enter constructor")
 
-        super().__init__(master, *args, **kargs)
+        super().__init__(master, bd=1, relief=tk.RIDGE, *args, **kargs)
 
+        #self.name_id = int(name_id)
         self.form = form
-        self.name = text.lower()
         self.events = EventHandler.get_instance()
         self.data = Database.get_instance()
+        self.line_list = []
+        self.crnt_index = 0
+        self.events.register_event('next_button', self.clear)
+        self.events.register_event('prev_button', self.clear)
+
+        # add button
+        tk.Button(self, text="Add", command=self.add).grid(row=0, column=0)
+        # reset button
+        tk.Button(self, text="Reset", command=self.clear).grid(row=0, column=1)
+
+        # add one line widget
+        self.add()
+        # self.row = {'table': None, 'column':None, 'self':self, 'hasid':None}
+        self.logger.debug("Line Widget leave constructor")
+
+    @debugger
+    def add(self):
+        '''
+        Method that actually adds the line to the widget.
+        '''
+        line = LineWidget(self, None, self.crnt_index+1)
+        line.grid(row=self.crnt_index+1, column=0, columnspan=2, padx=5)
+        self.line_list.append(line)
+        self.crnt_index += 1
+
+    # @debugger
+    # def get_line(self):
+    #     return self.row
+
+    @debugger
+    def clear(self):
+        '''
+        Reset the widget to having one blank line.
+        '''
+        for item in self.line_list:
+            item.grid_forget()
+        self.line_list = []
+        self.crnt_index = 0
+        self.add()
+
+    @debugger
+    def read(self, sale_id):
+        '''
+        Read method saves the contects to the database
+        '''
+        for item in self.line_list:
+            (quan, name) = item.read()
+            if name != '':
+                row = {
+                    'sale_record_ID': sale_id,
+                    'quantity': quan,
+                    'inventory_ID': self.data.get_id_by_name('InventoryItem', name)
+                }
+                self.data.insert_row('ProductList', row)
+
+        self.data.commit()
+
+    @debugger
+    def write(self):
+        '''
+        This function does nothing for this widget
+        '''
+        self.clear()

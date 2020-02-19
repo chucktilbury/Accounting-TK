@@ -3,6 +3,7 @@ from tkinter import messagebox as mb
 from utility import Logger, debugger
 from database import  Database
 from dialogs import SelectItem
+from events import EventHandler
 
 
 class SetupFormBase(object):
@@ -18,6 +19,7 @@ class SetupFormBase(object):
         self.table = table
         self.empty_ok = empty_ok
         self.data = Database.get_instance()
+        self.events = EventHandler.get_instance()
 
         self.id_list = self.get_id_list()
         self.crnt_index = 0
@@ -30,6 +32,13 @@ class SetupFormBase(object):
         method in the form class.
         '''
         return self.data.get_id_list(self.table)
+
+    @debugger
+    def get_id(self):
+        '''
+        Returns the id of the record in the current form.
+        '''
+        return self.id_list[self.crnt_index]
 
     @debugger
     def select_button_command(self):
@@ -48,17 +57,20 @@ class SetupFormBase(object):
                 self.set_form()
             except TypeError:
                 mb.showerror('ERROR', 'No record was selected. (no records are available?)')
+        self.events.raise_event('select_button')
 
     @debugger
     def new_button_command(self):
         ''' Clear the form '''
         self.clear_form()
+        self.events.raise_event('new_button')
 
     @debugger
     def save_button_command(self):
         ''' Save the form to the database '''
         if not self.id_list is None:
             self.get_form()
+            self.events.raise_event('save_button')
 
     @debugger
     def del_button_command(self):
@@ -73,6 +85,7 @@ class SetupFormBase(object):
                 if self.crnt_index >= len(self.id_list):
                     self.crnt_index -= 1
                 self.set_form()
+                self.events.raise_event('del_button')
 
     @debugger
     def next_btn_command(self):
@@ -83,6 +96,7 @@ class SetupFormBase(object):
                 self.crnt_index = len(self.id_list)-1
 
             self.set_form()
+            self.events.raise_event('next_button')
 
     @debugger
     def prev_btn_command(self):
@@ -93,6 +107,7 @@ class SetupFormBase(object):
                 self.crnt_index = 0
 
             self.set_form()
+            self.events.raise_event('prev_button')
 
     @debugger
     def clear_form(self):
@@ -103,6 +118,7 @@ class SetupFormBase(object):
             print(item)
             item['self'].clear()
         self.id_list = None
+        self.events.raise_event('clear_form')
 
     @debugger
     def set_form(self):#, row_id):
@@ -139,6 +155,7 @@ class SetupFormBase(object):
                 item['self'].write(tmp_row[item['hasid']['column']])
             else:
                 item['self'].write(row[item['column']])
+        self.events.raise_event('set_form')
 
     @debugger
     def get_form(self):
@@ -164,4 +181,5 @@ class SetupFormBase(object):
             self.data.update_row_by_id(self.table, row, row_id)
 
         self.id_list = self.get_id_list()
+        self.events.raise_event('get_form')
 

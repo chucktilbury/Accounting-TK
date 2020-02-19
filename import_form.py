@@ -28,7 +28,7 @@ class ImportSales(SetupFormBase):
 
         super().__init__(master, 'SaleRecord', empty_ok=True, *args, **kargs)
         self.form_contents = []
-        master.grid(padx=10, pady=10)
+        #master.grid(padx=10, pady=10)
 
         row = 0
         col = 0
@@ -96,6 +96,12 @@ class ImportSales(SetupFormBase):
         # self.committed_ID = ComboBox(master, self.table, 'committed_ID')
         # self.committed_ID.grid(row=row, column=col, sticky=(tk.W))
         # self.form_contents.append(self.committed_ID.get_line())
+        row+=1
+        col=0
+        tk.Label(master, text='Products:').grid(row=row, column=col, sticky=(tk.E))
+        col+=1
+        self.line_box = LineBox(master)
+        self.line_box.grid(row=row, column=col, padx=5, pady=5, sticky=(tk.W))
 
         row+=1
         col=0
@@ -153,6 +159,7 @@ class ImportSales(SetupFormBase):
         '''
         if not self.id_list is None:
             CommitSale(self.form_contents, self.id_list[self.crnt_index])
+            self.line_box.read(self.get_id())
         self.set_form()
 
 # CREATE TABLE PurchaseRecord

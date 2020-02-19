@@ -40,7 +40,7 @@ INSERT INTO SaleStatus
 INSERT INTO PurchaseStatus
         (name)
     VALUES
-        ('paid'), ('shipped'), ('backorder'), ('arrived'), ('other');
+        ('paid'), ('shipped'), ('backorder'), ('arrived'), ('complete'), ('other');
 
 INSERT INTO PurchaseType
         (name)
@@ -50,7 +50,7 @@ INSERT INTO PurchaseType
 INSERT INTO VendorType
         (name)
     VALUES
-        ('cogs'), ('other'), ('unknown');
+        ('cogs'), ('other'), ('owner'), ('unknown');
 
 #INSERT INTO CommittedState
 #        (name)

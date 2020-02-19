@@ -159,6 +159,7 @@ class CommitPurchase(CommitBase):
         (other_id, other_total) = self.get_account('OtherExpense')
         (tax_id, tax_total) = self.get_account('TaxesPayed')
         (ship_id, ship_total) = self.get_account('MaterialsShippingPayed')
+        (owner_id, owner_total) = self.get_account('OwnerCapital')
 
         # Subtract the gross from the Cash account
         if commit_type == 1: # cogs
@@ -166,11 +167,16 @@ class CommitPurchase(CommitBase):
             self.connect_purchase(gid)
             cash_total = cash_total - gross
             cogs_total = cogs_total + gross
-        else:
+        elif commit_type == 2: # other
             gid = self.make_generic_entry(gross, other_id, cash_id, 'recording a other expense purchase')
             self.connect_purchase(gid)
             cash_total = cash_total - gross
             other_total = other_total + gross
+        else: # owner
+            gid = self.make_generic_entry(gross, other_id, cash_id, 'recording a owner draw purchase')
+            self.connect_purchase(gid)
+            cash_total = cash_total - gross
+            owner_total = owner_total + gross
 
 
         # Add the tax to the TaxesPayed account
@@ -189,8 +195,10 @@ class CommitPurchase(CommitBase):
         self.data.update_row_by_id('Account', {'total':ship_total}, ship_id)
         if commit_type == 1:
             self.data.update_row_by_id('Account', {'total':cogs_total}, cogs_id)
-        else:
+        elif commit_type == 2:
             self.data.update_row_by_id('Account', {'total':other_total}, other_id)
+        else:
+            self.data.update_row_by_id('Account', {'total':owner_total}, owner_id)
 
         # Set the committed flag and update the SalesRecord
         self.data.update_row_by_id('PurchaseRecord', {'committed':True}, id)

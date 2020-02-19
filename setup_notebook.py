@@ -23,7 +23,7 @@ class SetupNotebook(object):
         notebook.add_tab('Inventory', InventoryForm)
         # notebook.add_tab('Trans Types', TransactionTypeForm)
         # notebook.add_tab('Transactions', TransactionsForm)
-        notebook.add_tab(' Sales ', ImportSales)
+        notebook.add_tab(' Sales ', ImportSales, scrolling=True, height=700, width=600)
         notebook.add_tab(' Purchases ', ImportPurchases)
         notebook.add_tab('Import', ImportFiles)
 

@@ -1,4 +1,5 @@
 import sys
+from utility import Logger, debugger
 
 class EventHandler(object):
     '''
@@ -25,6 +26,9 @@ class EventHandler(object):
 
     def __init__(self):
 
+        self.logger = Logger(self, level=Logger.DEBUG)
+        self.logger.debug("Event Handler start constructor")
+
         # gate the access to __init__()
         if EventHandler.__instance != None:
             raise Exception("EventHandler class is a singleton. Use get_instance() instead.")
@@ -33,6 +37,9 @@ class EventHandler(object):
 
         self.__event_list__ = {}
 
+        self.logger.debug("Event Handler leave constructor")
+
+    @debugger
     def register_event(self, name, callback):
         '''
         Store the event in the internal storage.
@@ -48,6 +55,7 @@ class EventHandler(object):
         self.__event_list__[name].append(callback)
 
 
+    @debugger
     def raise_event(self, name, *args):
         '''
         Call all of the callbacks that have been registered.
