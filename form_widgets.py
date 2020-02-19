@@ -25,8 +25,6 @@ class LabelBox(tk.Frame):
         name   = the text of the label
         table  = the name of the database table that is associated with this widget
         column = the name of the column this widget associates with
-        lw = label width
-        cw = control width
         '''
         self.logger = Logger(self, level=Logger.INFO)
         self.logger.debug("LabelBox enter constructor")
@@ -99,14 +97,6 @@ class EntryBox(tk.Frame):
         self.row = {'table': self.table, 'column':self.column, 'self':self, 'hasid':None}
         self.logger.debug("EntryBox leave constructor")
 
-    # @debugger
-    # def set_id(self, table, column):
-    #     '''
-    #     When the column has a ID, rather than a value, use this to get the record
-    #     that the ID references.
-    #     '''
-    #     self.row['hasid'] = {'table':table, 'column':column}
-
     @debugger
     def read(self):
         return self.content.get()
@@ -140,9 +130,7 @@ class ComboBox(tk.Frame):
         master = the frame to bind this frame to
         name   = the text of the label
         table  = the name of the database table that is associated with this widget
-        column = the name of the column this widget associates with
-        lw = label width
-        cw = control width
+        column = the name of the database column this widget associates with
         '''
         self.logger = Logger(self, level=Logger.INFO)
         self.logger.debug("ComboBox enter constructor")
@@ -343,6 +331,7 @@ class SingleButtonBox(tk.Frame):
         self.name = text.lower()
         self.events = EventHandler.get_instance()
         tk.Button(self, text=text, command=self.btn_callback).grid(row=1, column=2, padx=5, pady=5)
+        self.logger.debug("NotesBox leave constructor")
 
     @debugger
     def register_events(self, save):
@@ -355,4 +344,55 @@ class SingleButtonBox(tk.Frame):
     def btn_callback(self):
         self.events.raise_event('%s_btn_callback_%s'%(self.name, self.form))
 
+class LineWidget(tk.Frame):
+    '''
+    This is a special widget used to show and edit product entries for a sale
+    form. It implements a single line in the list.
+    '''
+    def __init__(self, master, form, line, *args, **kargs):
+        '''
+        master = The frame to bind the widgets to.
+        form = Name of the form to bind the events to.
+        line = The line number of the line, displayed as a label
+        '''
+        self.logger = Logger(self, level=Logger.INFO)
+        self.logger.debug("Line Widget enter constructor")
 
+        super().__init__(master, *args, **kargs)
+
+        self.form = form
+        self.name = text.lower()
+        self.events = EventHandler.get_instance()
+        #self.data = Database.get_instance()
+
+        self.values = self.data.populate_list('InventoryItem', 'name')
+        self.values.insert(0, '') # first line is blank
+
+        tk.Label(master, text='%d'%(int(line))).grid(row=0, column=0)
+        self.quan_str = tk.StringVar('0')
+        tk.Entry(master, textvariable=self.quan_str).grid(row=0, column=1)
+        self.prod = ttk.Combobox(master, values=self.values)
+        self.prod.grid(row=0, column=2)
+
+        self.logger.debug("Line Widget leave constructor")
+
+class LineBox(tk.Frame):
+    '''
+    This is a container for the line widgets. It holds a variable number of
+    line boxes and has the ability to write them all to the database when the
+    write method is called.
+    '''
+def __init__(self, master, form=None, *args, **kargs):
+        '''
+        master = The frame to bind the widgets to.
+        form = Name of the form to bind the events to.
+        '''
+        self.logger = Logger(self, level=Logger.INFO)
+        self.logger.debug("Line Widget enter constructor")
+
+        super().__init__(master, *args, **kargs)
+
+        self.form = form
+        self.name = text.lower()
+        self.events = EventHandler.get_instance()
+        self.data = Database.get_instance()

@@ -50,7 +50,6 @@ class BaseDialog(tk.Toplevel):
 
         self.result = None
         # get a copy of the data_store for the children
-        #self.data_store = DataStore.get_instance()
 
         body = tk.Frame(self)
         self.initial_focus = self.body(body)
