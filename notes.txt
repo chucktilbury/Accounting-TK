@@ -16,5 +16,3 @@ Do not add sales to cash until the order has shipped. Need to add a "Sale"
 account as a liability to hold unfulfilled sales.
 
 Add dialog the tells user that the database is being created.
-
-Change importer to display only one complete dialog instead of several.

@@ -45,17 +45,18 @@ INSERT INTO PurchaseStatus
 INSERT INTO PurchaseType
         (name)
     VALUES
-        ('cogs'), ('other'), ('unknown');
+        ('cogs'), ('other'), ('owner'), ('unknown');
 
 INSERT INTO VendorType
         (name)
     VALUES
-        ('cogs'), ('other'), ('owner'), ('unknown');
+        ('cogs'), ('other'), ('unknown');
 
 #INSERT INTO CommittedState
 #        (name)
 #    VALUES
 #        ('yes'), ('no');
+
 
 ###############################################################################
 #

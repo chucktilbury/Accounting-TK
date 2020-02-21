@@ -3,7 +3,7 @@ from tkinter import ttk
 import tkinter as tk
 import math
 from utility import Logger, debugger
-from database import Database
+#from database import Database
 #import utility
 #from data_store import DataStore
 
@@ -203,63 +203,19 @@ class NotesDialog(BaseDialog):
         #self.data_store.set_notes(self.notes)
         pass
 
-class SelectItem(BaseDialog):
-    '''
-    Create a list of items called 'name' from a table and return the database
-    ID of the item in item_id.
-    '''
+# this does not appear to work...
+class TransientMessage(BaseDialog):
 
-    def __init__(self, master, table, thing=None):
+    def __init__(self, master, name=None, msg=None):
 
-        self.logger = Logger(self, level=Logger.DEBUG)
-        self.logger.debug('SelectItem enter constructor')
-        self.table = table
-        if thing is None:
-            self.thing = 'Item'
-        else:
-            self.thing = thing
+        self.msg = msg
+        self.name = name
 
-        self.item_id = -1
         super().__init__(master)
-        self.wait_window(self)
-        self.logger.debug('SelectItem leave constructor')
 
     @debugger
     def body(self, master):
-        self.title("Select %s"%(self.thing))
-        self.data = Database.get_instance()
 
-        padx = 6
-        pady = 2
-
-        frame = tk.Frame(master, bd=1, relief=tk.RIDGE)
-        frame.grid(row=0, column=0, padx=4, pady=7)
-        tk.Label(frame, text="Select %s"%(self.thing), font=("Helvetica", 14)).grid(row=0, column=0, columnspan=2)
-
-        ######################
-        # Populate the combo boxes
-        lst = self.data.populate_list(self.table, 'name')
-        lst.sort()
-
-        ######################
-        # Show the boxes
-        tk.Label(frame, text='Name:').grid(row=1, column=0)
-        self.cbb = ttk.Combobox(frame, values=lst)
-        self.cbb.grid(row=1, column=1, padx=padx, pady=pady)
-        try:
-            self.cbb.current(0)
-        except tk.TclError:
-            mbox.showerror("TCL ERROR", "No records are available to select for this table.")
-
-    @debugger
-    def validate(self):
-        # Since the name was selected from the list, there is no need to
-        # validate.
-        return True
-
-    @debugger
-    def apply(self):
-        ''' Populate the form with the selected data. '''
-        id = self.data.get_id_by_name(self.table, self.cbb.get())
-        self.item_id = id
+        self.title(self.name)
+        tk.Label(master, text=self.msg).grid()
 

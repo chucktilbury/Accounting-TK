@@ -2,10 +2,10 @@ import os
 import time, locale
 
 import sqlite3 as sql
+import tkinter as tk
 from tkinter import messagebox as mbox
 from utility import Logger, debugger
-#import utility
-
+from dialogs import TransientMessage
 
 class Database(object):
     '''

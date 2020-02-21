@@ -63,17 +63,28 @@ class Importer(object):
     @debugger
     def import_all(self):
         ''' Perform all of the steps to import the entire CSV file '''
-        self.read_all()
+        total = self.read_all()
+        if total > 0:
+            #data = self.get_sales()
+            codes = self.import_country_codes()
+            cust = self.import_customer_contacts()
+            sales = self.do_sales_transactions()
 
-        data = self.get_sales()
-        self.import_country_codes(data)
-        self.import_customer_contacts(data)
-        self.do_sales_transactions(data)
+            #data = self.get_purchases()
+            #codes += self.import_country_codes()
+            vend = self.import_vendor_contacts()
+            purch = self.do_purchase_transactions()
+            text = 'Imported records:\n'
+            text += '   %d total lines in import\n'%(total)
+            text += '   %d country codes\n'%(codes)
+            text += '   %d unique customer entries\n'%(cust)
+            text += '   %d unique vendor entries\n'%(vend)
+            text += '   %d sale entries\n'%(sales)
+            text += '   %d purchase entries'%(purch)
+            mb.showinfo('Import', text)
 
-        data = self.get_purchases()
-        self.import_country_codes(data)
-        self.import_vendor_contacts(data)
-        self.do_purchase_transactions(data)
+        else:
+            mb.showinfo("Import", 'There were no records found to import.')
 
     @debugger
     def validate_email(self, email):
@@ -134,7 +145,6 @@ class Importer(object):
                 if not self.data.if_rec_exists('RawImport', 'TransactionID', tmp['TransactionID']):
                     self.data.insert_row('RawImport', tmp)
                     count+=1
-        # BUG: Import all of the completed records into the Raw Import table.
         self.data.commit()
         return count
 
@@ -145,14 +155,17 @@ class Importer(object):
         if data is None:
             return
 
+        count = 0
         for item in data:
             if item['CountryCode'] != '' and not self.data.if_rec_exists('Country', 'abbreviation', item['CountryCode']):
                 rec = {'name': item['Country'],
                         'abbreviation': item['CountryCode']}
                 self.data.insert_row('Country', rec)
+                count += 1
             self.data.update_row_by_id('RawImport', {'imported_country':True}, item['ID'])
 
         self.data.commit()
+        return count
 
     @debugger
     def import_customer_contacts(self):
@@ -189,7 +202,8 @@ class Importer(object):
                 # because the imported_customer field does not get updated due to the duplicate name interlock.
                 self.data.update_row_by_id('RawImport', {'imported_customer':True}, item['ID'])
         self.data.commit()
-        mb.showinfo('INFO', 'Imported %d customer contacts.'%(count))
+        #mb.showinfo('INFO', 'Imported %d customer contacts.'%(count))
+        return count
 
     @debugger
     def import_vendor_contacts(self):
@@ -219,7 +233,8 @@ class Importer(object):
                     count+=1
 
         self.data.commit()
-        mb.showinfo('INFO', 'Imported %d vendor contacts.'%(count))
+        #mb.showinfo('INFO', 'Imported %d vendor contacts.'%(count))
+        return count
 
     @debugger
     def do_purchase_transactions(self):
@@ -252,7 +267,8 @@ class Importer(object):
                 count+=1
 
         self.data.commit()
-        mb.showinfo('INFO', 'Imported %d purchase transactions.'%(count))
+        #mb.showinfo('INFO', 'Imported %d purchase transactions.'%(count))
+        return count
 
     @debugger
     def do_sales_transactions(self):
@@ -281,5 +297,6 @@ class Importer(object):
                 self.data.update_row_by_id('RawImport', {'imported_sale':True}, item['ID'])
 
         self.data.commit()
-        mb.showinfo('INFO', 'Imported %d sale transactions.'%(count))
+        #mb.showinfo('INFO', 'Imported %d sale transactions.'%(count))
+        return count
 

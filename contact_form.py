@@ -151,6 +151,15 @@ class CustomerForm(SetupFormBase):
         web_site.grid(row=row, column=col, sticky=(tk.W))
         self.form_contents.append(web_site.get_line())
 
+        #row+=1
+        #col=0
+        col += 1
+        tk.Label(master, text='Class:').grid(row=row, column=col, sticky=(tk.E))
+        col+=1
+        self.class_ID = ComboBox(master, self.table, 'class_ID')
+        self.class_ID.grid(row=row, column=col, sticky=(tk.W))
+        self.form_contents.append(self.class_ID.get_line())
+
         row+=1
         col=0
         tk.Label(master, text='Description:').grid(row=row, column=col, sticky=(tk.E))
@@ -158,14 +167,6 @@ class CustomerForm(SetupFormBase):
         description = EntryBox(master, self.table, 'description', width=width)
         description.grid(row=row, column=col, sticky=(tk.W), columnspan=4)
         self.form_contents.append(description.get_line())
-
-        row+=1
-        col=0
-        tk.Label(master, text='Class:').grid(row=row, column=col, sticky=(tk.E))
-        col+=1
-        self.class_ID = ComboBox(master, self.table, 'class_ID')
-        self.class_ID.grid(row=row, column=col, sticky=(tk.W))
-        self.form_contents.append(self.class_ID.get_line())
 
         row+=1
         col=0

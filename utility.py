@@ -2,7 +2,7 @@
 import sys, math, time, pprint, pickle
 import traceback
 from tkinter import messagebox as mbox
-#from exception import AppError
+import tkinter as tk
 
 class Logger(object):
     '''

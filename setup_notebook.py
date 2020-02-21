@@ -67,14 +67,15 @@ class ImportFiles(SetupFormBase):
         '''
         Bring a file into the database.
         '''
-        num = self.importer.read_all()
-        self.importer.import_country_codes()
-        mb.showinfo('INFO', 'Imported %d lines from file.'%(num))
-        if num > 0:
-            self.importer.import_customer_contacts()
-            self.importer.import_vendor_contacts()
-            self.importer.do_purchase_transactions()
-            self.importer.do_sales_transactions()
+        self.importer.import_all()
+        # num = self.importer.read_all()
+        # self.importer.import_country_codes()
+        # #mb.showinfo('INFO', 'Imported %d lines from file.'%(num))
+        # if num > 0:
+        #     self.importer.import_customer_contacts()
+        #     self.importer.import_vendor_contacts()
+        #     self.importer.do_purchase_transactions()
+        #     self.importer.do_sales_transactions()
 
 # CREATE TABLE Business
 #         (ID INTEGER PRIMARY KEY AUTOINCREMENT,
